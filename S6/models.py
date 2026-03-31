@@ -12,7 +12,7 @@ class Specialization(BaseModel):
     duration_training = IntegerField()
 
 def createTable():
-    db.create_tables(Specialization)
+    db.create_tables([Specialization])
 
 if __name__ == '__main__':
     createTable()
