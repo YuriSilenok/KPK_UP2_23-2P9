@@ -4,6 +4,7 @@ from datetime import date, datetime
 db = SqliteDatabase('S7.db')
 
 class BaseModel(Model):
+
     class Meta:
         database = db
 
@@ -16,7 +17,9 @@ class Group(BaseModel):
     tutor_id = IntegerField(default=None, null=True)
     is_active = BooleanField(default=True)
     count_student = IntegerField(default=0)
-
+    
+    class Meta:
+        indexes = ((('year_create', 'number', 'prefix', 'class_number'), True),)
 
     @staticmethod
     def get_course_number(admission_year):

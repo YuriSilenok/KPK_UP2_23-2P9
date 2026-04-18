@@ -1,8 +1,11 @@
 from models import Group
 from peewee import * 
 
-def create_group(**data) -> Group:
-    return Group.create(**data)
+def create_group(**data):
+    try:
+        return Group.create(**data)
+    except IntegrityError:
+        return None
 
 def delete_group(group_id: int):
     try:
@@ -22,7 +25,7 @@ def patch_group(group_id: int, tutor_id: int):
     
     group.tutor_id = tutor_id
     group.save()
-    return group
+    return group, group.name
 
 def info_id(group_id: int):
     try:
@@ -31,3 +34,9 @@ def info_id(group_id: int):
         return False
 
     return group, group.name
+
+def groups():
+    groups = Group.filter(is_active = True)
+    if not groups:
+        return False
+    return [{"id": g.id, "name": g.name} for g in groups]

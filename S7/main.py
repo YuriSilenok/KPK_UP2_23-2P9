@@ -1,48 +1,82 @@
 from fastapi import FastAPI, Depends, HTTPException
-from schemas import CreateGroup, PatchGroup, InfoGroup, Info_Id
+from schemas import CreateGroup, PatchGroup, Base, Groups
 from database import get_db
-from models import Group
 from crud import (
-create_group as create,
-patch_group as patch,
-delete_group as delete,
-info_id as info
+create_group as create_db,
+patch_group as patch_db,
+delete_group as delete_db,
+info_id as info_id_db, 
+groups as groups_db
 )
 
 app = FastAPI()
 
-
-@app.post('/groups') # создать группу
+@app.post('/groups')
 def create_group(group: CreateGroup, db=Depends(get_db)):
     try:
-        result = create(**group.dict())
+        result = create_db(**group.dict())
+        if result is None:
+            raise HTTPException(status_code=409, detail="Group already exists")
         return {"id": result.id, "status": "created"}
+    
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(400, detail=(e))
+        raise HTTPException(400, detail=str(e))
 
-@app.patch('/groups/{group_id}') # изменить группу по ID
+@app.patch('/groups/{group_id}')
 def patch_group(group_id: int, group: PatchGroup, db=Depends(get_db)):
     try:
-        result = patch(group_id, **group.dict())
+        result = patch_db(group_id, **group.dict())
         if result is False:
             raise HTTPException(404, detail="Group not found")
-        return {**result}
+        
+        group, group_name = result
+        
+        return Base.group_to_base(group, group_name)
+    
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(400, detail=e)
 
-@app.delete('/groups/{group_id}') # удалить группу по ID
+@app.delete('/groups/{group_id}')
 def delete_group(group_id: int, db=Depends(get_db)):
     try:
-        result = delete(group_id)
+        result = delete_db(group_id)
         if not result:
             raise HTTPException(404, detail='Group not found')
         return {"status": "True"}
+    
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(400, detail=(e))
+        raise HTTPException(400, detail=str(e))
 
-@app.get('/groups/{group_id}') # получить группу по ID
-def info_id(group: Info_Id, db=Depends(get_db)):
-    pass
-@app.get('/groups') # получить группы
-def info(group: InfoGroup, db=Depends(get_db)):
-    pass
+@app.get('/groups/{group_id}')
+def info_id(group_id: int, db=Depends(get_db)):
+    try:
+        result = info_id_db(group_id)
+        if result is False:
+            raise HTTPException(404, detail="Group not found")
+        
+        group, group_name = result
+
+        return Base.group_to_base(group, group_name)
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(400, detail=e)
+    
+@app.get('/groups')
+def info(group: Groups, db=Depends(get_db)):
+    try:
+        result = groups_db()
+        if result is False:
+            raise HTTPException(404, detail="No active groups")
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(400, detail=str(e))
