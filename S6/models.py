@@ -10,6 +10,7 @@ class Specialization(BaseModel):
     code = CharField(primary_key=True)
     name = CharField()
     duration_training = IntegerField()
+    department_id = IntegerField()
 
 def createTable():
     db.create_tables([Specialization])
