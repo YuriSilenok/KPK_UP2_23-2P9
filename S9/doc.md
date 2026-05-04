@@ -9,8 +9,8 @@
 | student_id | ID студента | Обязательно | Integer | > 0 | — |
 | movement_type | Тип движения | Обязательно | String | expelled, reinstated, transferred, academic_leave, back_from_leave | — |
 | start_date | Дата начала движения | Обязательно | Date | формат ГГГГ-ММ-ДД | — |
-| source_group_id | ID группы-источника | Условно | Integer | > 0 | NULL |
-| target_group_id | ID группы-назначения | Условно | Integer | > 0 | NULL |
+| source_group_id | ID группы-источника | Условно | Integer | > 0 | — |
+| target_group_id | ID группы-назначения | Условно | Integer | > 0 | — |
 | reason | Основание движения | Не обязательно | String | max 255 символов | NULL |
 | order_number | Номер приказа | Не обязательно | String | max 50 символов | NULL |
 | end_date | Дата окончания | Условно | Date | позже start_date | NULL |
@@ -41,8 +41,8 @@
 |--------------------------|------------------------|----------------|-----|-------------|-----------------------|
 | movement_type | Тип движения | Не обязательно | String | expelled, reinstated, transferred, academic_leave, back_from_leave | — |
 | start_date | Дата начала движения | Не обязательно | Date | формат ГГГГ-ММ-ДД | — |
-| source_group_id | ID группы-источника | Не обязательно | Integer | > 0 | NULL |
-| target_group_id | ID группы-назначения | Не обязательно | Integer | > 0 | NULL |
+| source_group_id | ID группы-источника | Не обязательно | Integer | > 0 | — |
+| target_group_id | ID группы-назначения | Не обязательно | Integer | > 0 | — |
 | reason | Основание движения | Не обязательно | String | max 255 символов | NULL |
 | order_number | Номер приказа | Не обязательно | String | max 50 символов | NULL |
 | end_date | Дата окончания | Не обязательно | Date | позже start_date | NULL |
