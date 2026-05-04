@@ -14,6 +14,7 @@ async def require_permission(request: Request):
 
 router = APIRouter(prefix='/permissions',tags=["Permission"], dependencies=[Depends(require_permission)])
 
+
 @router.get('/')
 async def get_all_permissions():
     answer = {
@@ -28,7 +29,6 @@ async def get_all_permissions():
         if p.id_role in answer:
             answer[p.id_role].append({'method':p.method, 'url':p.url})
     return answer
-
 
 @router.get('/{permission_id}/')
 async def get_permission_by_id(permission_id: int):
