@@ -13,4 +13,5 @@ jobs:
           # Список всех возможных ревьюверов
           reviewers: |
             YuriSilenok
+            CatJAM223
           numberOfReviewers: 1
