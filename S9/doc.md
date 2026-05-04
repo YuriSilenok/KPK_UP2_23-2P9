@@ -112,3 +112,6 @@
 | order_number | String или NULL |
 | end_date | Date или NULL |
 | is_active | Boolean |
+
+### ER-диаграмма
+![Диаграмма](erd.png)
