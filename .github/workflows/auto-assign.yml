@@ -5,17 +5,20 @@ on:
 
 permissions:
   pull-requests: write
-  contents: read
 
 jobs:
   assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: wow-actions/auto-assign@v3
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Список всех возможных ревьюверов
-          reviewers: |
-            YuriSilenok
-            CatJAM223
-          numberOfReviewers: 1
+      - name: Request reviewers
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Запрашиваем ревью у обоих пользователей
+          gh pr edit $PR_NUMBER --add-reviewer YuriSilenok --repo $REPO
+          gh pr edit $PR_NUMBER --add-reviewer CatJAM223 --repo $REPO
+          
+          # Оставляем только одного (если нужно)
+          # GitHub сам выберет одного, если указать несколько
