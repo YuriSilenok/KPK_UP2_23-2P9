@@ -1,61 +1,44 @@
-import os
 from peewee import *
 from datetime import date, datetime
 
-db = SqliteDatabase('student_movement.db')
+db = SqliteDatabase('S9.db')
 
-
-class Student(Model):
-    """Модель студента"""
-    id = IntegerField(primary_key=True)
-    full_name = CharField(max_length=200)
-    group_id = IntegerField()
-    is_active = BooleanField(default=True)
-
+class BaseModel(Model):
     class Meta:
         database = db
-        table_name = 'students'
 
-
-class Group(Model):
-    """Модель учебной группы"""
-    id = IntegerField(primary_key=True)
-    name = CharField(max_length=100)
-    year_of_entry = IntegerField()
-    is_active = BooleanField(default=True)
-
-    class Meta:
-        database = db
-        table_name = 'groups'
-
-
-class Movement(Model):
-    """Модель движения студента"""
-    id = AutoField()
+class Movement(BaseModel):
     student_id = IntegerField()
-    movement_type = CharField(max_length=20)
+    movement_type = CharField(max_length=30)
     start_date = DateField()
-    source_group_id = IntegerField(null=True)
-    target_group_id = IntegerField(null=True)
-    reason = CharField(max_length=255, null=True)
+    source_group_id = IntegerField(default=0)
+    target_group_id = IntegerField(default=0)
+    reason = TextField(null=True)
     order_number = CharField(max_length=50, null=True)
     end_date = DateField(null=True)
     created_at = DateTimeField(default=datetime.now)
     is_active = BooleanField(default=True)
 
-    class Meta:
-        database = db
-        table_name = 'movements'
+    @staticmethod
+    def is_valid_movement_type(movement_type: str) -> bool:
+        """Проверяет, допустим ли тип движения"""
+        valid_types = ['expelled', 'reinstated', 'transferred', 'academic_leave', 'back_from_leave']
+        return movement_type in valid_types
 
+    @property
+    def movement_type_rus(self) -> str:
+        """Возвращает русское название типа движения"""
+        types = {
+            'expelled': 'Отчисление',
+            'reinstated': 'Восстановление',
+            'transferred': 'Перевод',
+            'academic_leave': 'Академический отпуск',
+            'back_from_leave': 'Выход из отпуска'
+        }
+        return types.get(self.movement_type, self.movement_type)
 
-def init_db():
-    db.connect()
-    db.create_tables([Student, Group, Movement], safe=True)
+def createTable():
+    db.create_tables([Movement])
 
-
-def main():
-    init_db()
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    createTable()
