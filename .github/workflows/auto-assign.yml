@@ -11,11 +11,28 @@ jobs:
   assign:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug PR info
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+          PR_IS_DRAFT: ${{ github.event.pull_request.draft }}
+        run: |
+          echo "=== PR Information ==="
+          echo "PR #: $PR_NUMBER"
+          echo "Author: $PR_AUTHOR"
+          echo "Title: $PR_TITLE"
+          echo "Is Draft: $PR_DRAFT"
+          echo "======================"
+          echo "Reviewers to assign: YuriSilenok, CatJAM223"
+          echo "Author cannot be a reviewer: $([ "$PR_AUTHOR" = "YuriSilenok" ] || [ "$PR_AUTHOR" = "CatJAM223" ] && echo "TRUE (this is the problem!)" || echo "FALSE")"
+      
       - uses: wow-actions/auto-assign@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Список всех возможных ревьюверов
           reviewers: |
             YuriSilenok
             CatJAM223
           numberOfReviewers: 1
+          skipDraft: false
