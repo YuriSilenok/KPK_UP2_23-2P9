@@ -1,12 +1,12 @@
-from fastapi import FastAPI, Depends, HTTPException
-from app.schemas import CreateGroup, PatchGroup, Base, Groups
+from fastapi import FastAPI, Depends, HTTPException, Query
+from app.schemas import CreateGroup, PatchGroup, Base, Groups, GroupFilter
 from app.database import get_db
 from app.crud import (
 create_group as create_db,
 patch_group as patch_db,
 delete_group as delete_db,
-info_id as info_id_db, 
-groups as groups_db
+info_id as info_id_db,
+filter_groups as filter_groups_db,
 )
 
 app = FastAPI()
@@ -70,13 +70,17 @@ def info_id(group_id: int, db=Depends(get_db)):
         raise HTTPException(400, detail=e)
     
 @app.get('/groups')
-def info(group: Groups, db=Depends(get_db)):
+def filter_groups(filters: GroupFilter = Depends(GroupFilter.query_params), db=Depends(get_db)):
     try:
-        result = groups_db()
-        if result is False:
-            raise HTTPException(404, detail="No active groups")
+        query = filter_groups_db(filters)
+        result = [{
+            "id": group.id,
+            "year_created": group.year_create
+            }
+        for group in query]
+
         return result
     except HTTPException:
-        raise
+        raise HTTPException(404, detail="Group not found")
     except Exception as e:
         raise HTTPException(400, detail=str(e))
