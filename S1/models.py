@@ -6,7 +6,7 @@ class User(Model):
     user_id = IntegerField(primary_key=True)
     login = CharField(unique=True, max_length=50)
     password_hash = CharField()
-    status = CharField(default='active')
+    is_active = BooleanField(default=True)
 
     class Meta:
         database = db
