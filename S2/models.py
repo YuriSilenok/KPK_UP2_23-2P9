@@ -11,7 +11,7 @@ class Profil(BaseModel):
     second_name = CharField()
     last_name = CharField()
     telephone = IntegerField()
-    e-mail = CharField()
+    e_mail = CharField()
     photo = CharField()
     profil_act = BooleanField(default=True)
 
