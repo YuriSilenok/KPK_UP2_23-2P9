@@ -7,7 +7,7 @@ def check_url(request_url: str, template_url: str):
         return False
     else:
         for t_segment, r_segment in zip(template_segment, request_segment):
-            if t_segment == '*' or t_segment == '{id}':
+            if t_segment == '*':
                 continue
             if t_segment != r_segment:
                 return False
