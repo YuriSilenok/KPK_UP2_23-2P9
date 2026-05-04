@@ -11,6 +11,7 @@ class Specialization(BaseModel):
     name = CharField()
     duration_training = IntegerField()
     department_id = IntegerField()
+    is_active = BooleanField()
 
 def createTable():
     db.create_tables([Specialization])
