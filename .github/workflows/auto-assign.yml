@@ -16,10 +16,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          # Запрашиваем ревью у обоих пользователей
-          gh pr edit $PR_NUMBER --add-reviewer YuriSilenok --repo $REPO
-          gh pr edit $PR_NUMBER --add-reviewer CatJAM223 --repo $REPO
-          gh pr edit $PR_NUMBER --add-reviewer Andrey-hehe --repo $REPO
-          
-          # Оставляем только одного (если нужно)
-          # GitHub сам выберет одного, если указать несколько
+          reviewers=("YuriSilenok" "CatJAM223" "Andrey-hehe" "Bormerd")
+          random_reviewer=${reviewers[$RANDOM % ${#reviewers[@]}]}
+          gh pr edit $PR_NUMBER --add-reviewer $random_reviewer --repo $REPO
+          echo "✅ Ревьюер $random_reviewer успешно назначен"
