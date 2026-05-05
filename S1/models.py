@@ -3,7 +3,6 @@ from peewee import *
 db = SqliteDatabase('auth.db')
 
 class User(Model):
-    id = AutoField()
     login = CharField(unique=True, max_length=50)
     password_hash = CharField()
     is_active = BooleanField(default=True)
