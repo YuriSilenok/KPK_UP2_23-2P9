@@ -16,6 +16,6 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
         run: |
-          reviewers=("YuriSilenok" "CatJAM223" "Andrey-hehe")
+          reviewers=("YuriSilenok" "CatJAM223" "Andrey-hehe" "Bormerd")
           random_reviewer=${reviewers[$RANDOM % ${#reviewers[@]}]}
           gh pr edit $PR_NUMBER --add-reviewer $random_reviewer --repo $REPO
