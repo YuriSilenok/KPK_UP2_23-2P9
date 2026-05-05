@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, APIRouter, Request
 from peewee import DoesNotExist
 from models import Permission
-from check_permission import check_permission
+from logic import check_permission
 
 async def require_permission(request: Request):
     answer = await check_permission(role_id = 1, method = str(request.method), url = str(request.url.path))

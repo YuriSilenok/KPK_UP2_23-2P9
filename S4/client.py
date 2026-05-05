@@ -47,7 +47,7 @@ def add():
     entry_role.place(x=5,y=20)
 
     Label(frame_edit,text="Метод",bg="white").place(x=5,y=60)
-    entry_method = ttk.Combobox(frame_edit,values=['GET','POST','PUT','DELETE'],state='readonly')
+    entry_method = ttk.Combobox(frame_edit,values=['GET','POST','PUT',"PATCH",'DELETE'],state='readonly')
     entry_method.place(x=5,y=80)
 
     Label(frame_edit,text="Ссылка",bg="white").place(x=5,y=120)
