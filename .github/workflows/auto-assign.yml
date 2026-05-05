@@ -19,6 +19,7 @@ jobs:
           # Запрашиваем ревью у обоих пользователей
           gh pr edit $PR_NUMBER --add-reviewer YuriSilenok --repo $REPO
           gh pr edit $PR_NUMBER --add-reviewer CatJAM223 --repo $REPO
+          gh pr edit $PR_NUMBER --add-reviewer Andrey-hehe --repo $REPO
           
           # Оставляем только одного (если нужно)
           # GitHub сам выберет одного, если указать несколько
