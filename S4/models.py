@@ -8,8 +8,8 @@ class BaseModel(Model):
 
 class Permission(BaseModel):
     id = AutoField()
-    role_id = IntegerField(constraints=[Check('id_role BETWEEN 1 AND 6')])
-    method = CharField(constraints=[Check("method IN ('GET', 'POST', 'PUT', 'PATCH', 'DELETE')")])
+    role_id = IntegerField(constraints=[Check('role_id BETWEEN 1 AND 6')])
+    method = CharField(constraints=[Check("method IN ('GET','HEAD','OPTIONS','POST', 'PUT', 'PATCH', 'TRACE','CONNECT','DELETE')")])
     url = CharField()
 
 

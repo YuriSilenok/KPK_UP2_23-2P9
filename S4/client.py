@@ -6,40 +6,37 @@ from models import Permission
 root = Tk()
 root.geometry("1200x1080")
 
-canvas_tree = Canvas(root,width=610,height=900,bg="white")
-canvas_tree.place(x=50,y=50)
-
 columns = ['ID','Роль','Метод','Ссылка']
 
-canvas_edit = None
-canvas_add = None
+state = {
+    "canvas_edit": None,
+    "canvas_add": None,
+    "tree": None
+}
 
 def update_table():
-    global tree
-    tree.delete(*tree.get_children())
+    state["tree"].delete(*state['tree'].get_children())
     for p in Permission.select():
-        tree.insert('', END, values=[p.id, p.role_id, p.method, p.url])
+        state['tree'].insert('', END, values=[p.id, p.role_id, p.method, p.url])
 
 def add():
-    global canvas_edit, canvas_add
-    if canvas_add:
-        canvas_add.destroy()
-        canvas_add = None
-    canvas_add = Canvas(root,width=300,height=250,bg="white")
-    if canvas_edit:
-        canvas_add.place(x=tree.winfo_width()+110,y=340)
+    if state["canvas_add"]:
+        state["canvas_add"].destroy()
+        state["canvas_add"] = None
+    state["canvas_add"] = Canvas(root,width=300,height=250,bg="white")
+    if state["canvas_edit"]:
+        state["canvas_add"].place(x=state["tree"].winfo_width()+110,y=340)
     else:
-        canvas_add.place(x=tree.winfo_width()+110,y=50)
+        state["canvas_add"].place(x=state["tree"].winfo_width()+110,y=50)
 
     def kill():
-        global canvas_add
-        canvas_add.destroy()
-        canvas_add = None
+        state["canvas_add"].destroy()
+        state["canvas_add"] = None
 
-    Button(canvas_add,text='X',background='red',command=kill).place(x=285,y=0)
-    Label(canvas_add, text="Добавление",bg="white").place(x=0,y=0)
+    Button(state["canvas_add"],text='X',background='red',command=kill).place(x=285,y=0)
+    Label(state["canvas_add"], text="Добавление",bg="white").place(x=0,y=0)
 
-    frame_edit = Frame(canvas_add,bg="white",width=300,height=200)
+    frame_edit = Frame(state["canvas_add"],bg="white",width=300,height=200)
     frame_edit.place(x=3,y=20)
 
     Label(frame_edit,text="Роль",bg="white").place(x=5,y=0)
@@ -55,7 +52,6 @@ def add():
     entry_url.place(x=5,y=140)
 
     def update():
-        global canvas_add
         try:
             role = entry_role.get()
             method = entry_method.get()
@@ -63,8 +59,8 @@ def add():
             Permission.create(role_id=role, method=method, url=url)
             showinfo("Добавление", "Успешно создано")
             update_table()
-            canvas_add.destroy()
-            canvas_add = None
+            state["canvas_add"].destroy()
+            state["canvas_add"] = None
         except:
             showerror('Добавление','Роль не выбрана')
 
@@ -72,53 +68,51 @@ def add():
 
 Button(text='Добавить',background='white',command=add).place(x=50,y=20)
 
-tree = ttk.Treeview(canvas_tree,columns=columns,show='headings')
-tree.place(x=0,y=0)
+state['tree'] = ttk.Treeview(columns=columns,show='headings')
+state['tree'].place(x=50,y=50)
 
-scroll = ttk.Scrollbar(canvas_tree,orient="vertical",command=tree.yview)
-scroll.place(x=600,y=0)
+scroll = ttk.Scrollbar(orient="vertical",command=state['tree'].yview)
+scroll.place(x=652,y=50)
 
-tree.heading('ID',text='ID')
-tree.column('ID',width=100)
-tree.heading('Роль',text='Роль')
-tree.column('Роль',width=100)
-tree.heading('Метод',text="Метод")
-tree.column('Метод',width=100)
-tree.heading('Ссылка',text='Ссылка')
-tree.column('Ссылка',width=300)
+state['tree'].heading('ID',text='ID')
+state['tree'].column('ID',width=100)
+state['tree'].heading('Роль',text='Роль')
+state['tree'].column('Роль',width=100)
+state['tree'].heading('Метод',text="Метод")
+state['tree'].column('Метод',width=100)
+state['tree'].heading('Ссылка',text='Ссылка')
+state['tree'].column('Ссылка',width=300)
 
 for p in Permission.select():
-    tree.insert('',END,values=[p,p.role_id,p.method,p.url])
+    state['tree'].insert('',END,values=[p,p.role_id,p.method,p.url])
 
 
 def select_item(event):
-    global canvas_edit
-    selected_items = tree.selection()
+    selected_items = state['tree'].selection()
 
     if not selected_items:
-        if canvas_edit:
-            canvas_edit.destroy()
-            canvas_edit = None
+        if state["canvas_edit"]:
+            state["canvas_edit"].destroy()
+            state["canvas_edit"] = None
         return
 
-    select_data = tree.item(selected_items[0])['values']
+    select_data = state['tree'].item(selected_items[0])['values']
 
-    if not canvas_edit:
-        canvas_edit = Canvas(root,width=300,height=250,bg="white")
-        if canvas_add:
-            canvas_edit.place(x=tree.winfo_width()+110,y=340)
+    if not state["canvas_edit"]:
+        state["canvas_edit"] = Canvas(root,width=300,height=250,bg="white")
+        if state["canvas_add"]:
+            state["canvas_edit"].place(x= state['tree'].winfo_width()+110,y=340)
         else:
-            canvas_edit.place(x=tree.winfo_width() + 110, y=50)
+            state["canvas_edit"].place(x= state['tree'].winfo_width() + 110, y=50)
 
     def kill():
-        global canvas_edit
-        canvas_edit.destroy()
-        canvas_edit = None
+        state["canvas_edit"].destroy()
+        state["canvas_edit"] = None
 
-    Button(canvas_edit,text='X',background='red',command=kill).place(x=285,y=0)
-    Label(canvas_edit, text="Редактирование",bg="white").place(x=0,y=0)
+    Button(state["canvas_edit"],text='X',background='red',command=kill).place(x=285,y=0)
+    Label(state["canvas_edit"], text="Редактирование",bg="white").place(x=0,y=0)
 
-    frame_edit = Frame(canvas_edit,bg="white",width=300,height=200)
+    frame_edit = Frame(state["canvas_edit"],bg="white",width=300,height=200)
     frame_edit.place(x=3,y=20)
 
     Label(frame_edit,text="Роль",bg="white").place(x=5,y=0)
@@ -137,7 +131,6 @@ def select_item(event):
     entry_url.place(x=5,y=140)
 
     def update():
-        global canvas_edit
         try:
             role = entry_role.get()
             method = entry_method.get()
@@ -145,29 +138,28 @@ def select_item(event):
             Permission.update(role_id=role,method=method,url=url).where(Permission.id==select_data[0]).execute()
             showinfo("Добавление", "Успешно создано")
             update_table()
-            canvas_edit.destroy()
-            canvas_edit = None
+            state["canvas_edit"].destroy()
+            state["canvas_edit"] = None
         except:
             showerror('Добавление','Роль не выбрана')
 
     Button(frame_edit,text='Сохранить',background='white',command=update).place(x=5,y=180)
 
 def delete(event):
-    global tree, canvas_edit
-    item = tree.selection()
+    item =  state['tree'].selection()
     if not item:
         showinfo('Удаление',"Вы не выбрали элемента для удаления")
         return
 
     if askyesno('Удаление','Вы действительно хотите удалить выбранный элемент?'):
-        Permission.delete().where(Permission.id == tree.item(item,'values')[0]).execute()
+        Permission.delete().where(Permission.id ==  state['tree'].item(item,'values')[0]).execute()
         showinfo('Удаление','Успешно')
-        canvas_edit.destroy()
-        canvas_edit = None
+        state["canvas_edit"].destroy()
+        state["canvas_edit"] = None
         update_table()
 
-tree.bind('<<TreeviewSelect>>',select_item)
-tree.bind('<Button-3>',delete)
+state['tree'].bind('<<TreeviewSelect>>',select_item)
+state['tree'].bind('<Button-3>',delete)
 
 
 if __name__ == "__main__":
