@@ -27,7 +27,7 @@ async def get_all_permissions():
     }
     for p in Permission.select():
         if p.id_role in answer:
-            answer[p.id_role].append({'method':p.method, 'url':p.url})
+            answer[p.role_id].append({'method':p.method, 'url':p.url})
     return answer
 
 @router.get('/{permission_id}/')
@@ -38,8 +38,8 @@ async def get_permission_by_id(permission_id: int):
         raise HTTPException(status_code=404, detail="Разрешение не найдено")
 
     return {
-        "id": permission.id,
-        "id_role": permission.id_role,
+        "permission_id": permission.id,
+        "role_id": permission.role_id,
         "method": permission.method,
         "url": permission.url
     }
@@ -47,7 +47,7 @@ async def get_permission_by_id(permission_id: int):
 @router.get('/{role_id}/')
 async def get_permission_by_role(role_id: int):
     answer = []
-    for p in Permission.select().where(Permission.id_role == role_id):
+    for p in Permission.select().where(Permission.role_id == role_id):
         answer.append({'method':p.method, 'url':p.url})
     return answer
 
@@ -55,7 +55,7 @@ async def get_permission_by_role(role_id: int):
 async def create_permission(role_id: int, method: str, url: str):
 
     existing = Permission.select().where(
-        (Permission.id_role == role_id) &
+        (Permission.role_id == role_id) &
         (Permission.method == method.upper()) &
         (Permission.url == url)
     ).first()
@@ -64,7 +64,7 @@ async def create_permission(role_id: int, method: str, url: str):
         raise HTTPException(status_code=400, detail="Такое разрешение уже существует")
 
     permission = Permission.create(
-        id_role=role_id,
+        role_id=role_id,
         method=method,
         url=url
     )
@@ -72,13 +72,13 @@ async def create_permission(role_id: int, method: str, url: str):
     return {
         "status_code": 201,
         "detail": "Привилегия создана",
-        "id": permission.id
+        "permission_id": permission.id
     }
 
-@router.patch('/{id}/')
-async def update_permission(id: int, method: str = None, url: str = None):
+@router.patch('/{permission_id}/')
+async def update_permission(permission_id: int, method: str = None, url: str = None):
     try:
-        permission = Permission.get_by_id(id)
+        permission = Permission.get_by_id(permission_id)
     except DoesNotExist:
         raise HTTPException(status_code=404,detail='Запись не найдена')
     if method:
@@ -91,18 +91,18 @@ async def update_permission(id: int, method: str = None, url: str = None):
     return {
         "status_code": 200,
         "detail": "Запись обновлена",
-        "id": id
+        "permission_id": permission_id
     }
 
-@router.delete('/{id}/')
-async def delete_permission(id: int):
+@router.delete('/{permission_id}/')
+async def delete_permission(permission_id: int):
     try:
-        permission = Permission.get_by_id(id)
+        permission = Permission.get_by_id(permission_id)
     except DoesNotExist:
         raise HTTPException(status_code=404,detail='Запись не найдена')
     permission.delete_instance()
     return {
         "status_code": 200,
         "detail": "Запись удалена",
-        "id": id
+        "permission_id": permission_id
     }

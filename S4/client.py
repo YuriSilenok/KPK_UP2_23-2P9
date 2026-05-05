@@ -18,7 +18,7 @@ def update_table():
     global tree
     tree.delete(*tree.get_children())
     for p in Permission.select():
-        tree.insert('', END, values=[p.id, p.id_role, p.method, p.url])
+        tree.insert('', END, values=[p.id, p.role_id, p.method, p.url])
 
 def add():
     global canvas_edit, canvas_add
@@ -60,7 +60,7 @@ def add():
             role = entry_role.get()
             method = entry_method.get()
             url = entry_url.get()
-            Permission.create(id_role=role, method=method, url=url)
+            Permission.create(role_id=role, method=method, url=url)
             showinfo("Добавление", "Успешно создано")
             update_table()
             canvas_add.destroy()
@@ -88,7 +88,7 @@ tree.heading('Ссылка',text='Ссылка')
 tree.column('Ссылка',width=300)
 
 for p in Permission.select():
-    tree.insert('',END,values=[p,p.id_role,p.method,p.url])
+    tree.insert('',END,values=[p,p.role_id,p.method,p.url])
 
 
 def select_item(event):
@@ -142,7 +142,7 @@ def select_item(event):
             role = entry_role.get()
             method = entry_method.get()
             url = entry_url.get()
-            Permission.update(id_role=role,method=method,url=url).where(Permission.id==select_data[0]).execute()
+            Permission.update(role_id=role,method=method,url=url).where(Permission.id==select_data[0]).execute()
             showinfo("Добавление", "Успешно создано")
             update_table()
             canvas_edit.destroy()

@@ -16,7 +16,7 @@ def check_url(request_url: str, template_url: str):
 async def check_permission(role_id: int, method: str , url: str) -> dict[str, bool]:
     action = f"{method} {url}"
     for permission in Permission.select().where(
-            (Permission.id_role == role_id)&
+            (Permission.role_id == role_id)&
             (Permission.method == method)):
         check = check_url(url,permission.url)
         if check:
