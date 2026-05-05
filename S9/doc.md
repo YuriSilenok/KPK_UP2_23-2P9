@@ -126,3 +126,4 @@
 | description | String или NULL |
 
 ## ER-диаграмма
+![Диаграмма](erd1.png)
