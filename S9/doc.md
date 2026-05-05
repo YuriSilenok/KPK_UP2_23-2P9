@@ -1,117 +1,128 @@
 ## Вариант 9. Сервис движения студентов
 
-### Добавить движение
+### Добавить тип приказа (OrderType)
 
-Информация требуемая для создания движения студентов
+Информация требуемая для создания типа приказа
 
-| Параметр  | Пояснение  | Обязательность | Тип | Ограничение | Значение по умолчанию |
-|--------------------------|------------------------|----------------|-----|-------------|-----------------------|
-| student_id | ID студента | Обязательно | Integer | > 0 | — |
-| movement_type | Тип движения | Обязательно | String | expelled, reinstated, transferred, academic_leave, back_from_leave | — |
-| start_date | Дата начала движения | Обязательно | Date | формат ГГГГ-ММ-ДД | — |
-| source_group_id | ID группы-источника | Условно | Integer | > 0 | — |
-| target_group_id | ID группы-назначения | Условно | Integer | > 0 | — |
-| reason | Основание движения | Не обязательно | String | max 255 символов | NULL |
-| order_number | Номер приказа | Не обязательно | String | max 50 символов | NULL |
-| end_date | Дата окончания | Условно | Date | позже start_date | NULL |
+| Параметр | Пояснение | Обязательность | Тип | Ограничение | Значение по умолчанию |
+|----------|-----------|----------------|-----|-------------|-----------------------|
+| code | Код типа приказа | Обязательно | String | expulsion, transfer, reinstatement, academic_leave, return_from_leave | — |
+| description | Описание | Не обязательно | String | max 255 символов | NULL |
 
-Уникальные комбинации параметров: movement_type + student_id + start_date
-
-Информация возвращаемая в случае удачного создания движения студента
+Информация возвращаемая при создании типа приказа
 
 | Параметр | Тип |
-|--------------------------|-----|
+|----------|-----|
 | id | Integer |
-| student_id | Integer |
-| movement_type | String |
-| start_date | Date |
-| source_group_id | Integer или NULL |
-| target_group_id | Integer или NULL |
-| reason | String или NULL |
-| order_number | String или NULL |
-| end_date | Date или NULL |
-| created_at | DateTime |
-| is_active | Boolean |
+| code | String |
+| description | String или NULL |
 
-### Изменить движения студента по ID
+### Добавить содержание приказа (OrderDocument)
 
-Информация требуемая для изменения движения студента по ID 
+Информация требуемая для создания содержания приказа
 
-| Параметр | Пояснение  | Обязательность | Тип | Ограничение | Значение по умолчанию |
-|--------------------------|------------------------|----------------|-----|-------------|-----------------------|
-| movement_type | Тип движения | Не обязательно | String | expelled, reinstated, transferred, academic_leave, back_from_leave | — |
-| start_date | Дата начала движения | Не обязательно | Date | формат ГГГГ-ММ-ДД | — |
-| source_group_id | ID группы-источника | Не обязательно | Integer | > 0 | — |
-| target_group_id | ID группы-назначения | Не обязательно | Integer | > 0 | — |
-| reason | Основание движения | Не обязательно | String | max 255 символов | NULL |
-| order_number | Номер приказа | Не обязательно | String | max 50 символов | NULL |
-| end_date | Дата окончания | Не обязательно | Date | позже start_date | NULL |
+| Параметр | Пояснение | Обязательность | Тип | Ограничение | Значение по умолчанию |
+|----------|-----------|----------------|-----|-------------|-----------------------|
+| order_type_id | ID типа приказа | Обязательно | Integer | > 0 | — |
+| student_id | ID студента | Обязательно | Integer | > 0 | — |
+| order_number | Номер приказа | Обязательно | String | max 50 символов | — |
+| order_date | Дата приказа | Обязательно | Date | формат ГГГГ-ММ-ДД | — |
+| signed_by | Кто подписал | Обязательно | String | max 100 символов | — |
+| reason | Основание | Не обязательно | String | max 255 символов | NULL |
 
-Информация возвращаемая в случае удачного изменения движения студента
+Уникальная комбинация: `order_type_id` + `student_id` + `order_number`
 
-| Параметр  | Тип |
-|--------------------------|-----|
+Информация возвращаемая при создании содержания приказа
+
+| Параметр | Тип |
+|----------|-----|
 | id | Integer |
+| order_type_id | Integer |
 | student_id | Integer |
-| movement_type | String |
-| start_date | Date |
-| source_group_id | Integer или NULL |
-| target_group_id | Integer или NULL |
+| order_number | String |
+| order_date | Date |
+| signed_by | String |
 | reason | String или NULL |
-| order_number | String или NULL |
-| end_date | Date или NULL |
-| updated_at | DateTime |
 
-### Удалить Movement по ID
+### Изменить содержание приказа по ID
 
-Вернет True, если Movement была удалена, иначе вернет False
+Информация требуемая для изменения
 
-### Получить информацию о движении студента по ID
+| Параметр | Пояснение | Обязательность | Тип | Ограничение |
+|----------|-----------|----------------|-----|-------------|
+| order_type_id | ID типа приказа | Не обязательно | Integer | > 0 |
+| student_id | ID студента | Не обязательно | Integer | > 0 |
+| order_number | Номер приказа | Не обязательно | String | max 50 символов |
+| order_date | Дата приказа | Не обязательно | Date | формат ГГГГ-ММ-ДД |
+| signed_by | Кто подписал | Не обязательно | String | max 100 символов |
+| reason | Основание | Не обязательно | String | max 255 символов |
 
-Информация возвращаемая в случае удачного поиска движения студента
+Информация возвращаемая при изменении
 
-| Параметр  | Пояснение  | Тип |
-|--------------------------|------------------------|-----|
-| id | ID записи движения | Integer |
+| Параметр | Тип |
+|----------|-----|
+| id | Integer |
+| order_type_id | Integer |
+| student_id | Integer |
+| order_number | String |
+| order_date | Date |
+| signed_by | String |
+| reason | String или NULL |
+
+
+### Удалить содержание приказа по ID
+
+Вернет `True`, если удалено, иначе `False`
+
+
+### Получить содержание приказа по ID
+
+| Параметр | Пояснение | Тип |
+|----------|-----------|-----|
+| id | ID записи | Integer |
+| order_type_id | ID типа приказа | Integer |
+| order_type_code | Код типа приказа | String |
 | student_id | ID студента | Integer |
-| movement_type | Тип движения | String |
-| start_date | Дата начала | Date |
-| source_group_id | ID группы-источника | Integer или NULL |
-| target_group_id | ID группы-назначения | Integer или NULL |
+| order_number | Номер приказа | String |
+| order_date | Дата приказа | Date |
+| signed_by | Кто подписал | String |
 | reason | Основание | String или NULL |
-| order_number | Номер приказа | String или NULL |
-| end_date | Дата окончания | Date или NULL |
-| created_at | Дата создания записи | DateTime |
-| is_active | Активна ли запись | Boolean |
 
-### Получить список движения по заданным параметрам
 
-| Параметр  | Пояснение  | Тип | Описание |
-|--------------------------|------------------------|-----|----------|
+### Получить список приказов по параметрам
+
+Информация требуемая для получения списка
+
+| Параметр | Пояснение | Тип | Описание |
+|----------|-----------|-----|----------|
+| order_type_id | ID типа приказа | Integer | Фильтр по типу |
 | student_id | ID студента | Integer | Фильтр по студенту |
-| movement_type | Тип движения | String | expelled, reinstated, transferred, academic_leave, back_from_leave |
-| source_group_id | ID группы-источника | Integer | Фильтр по исходной группе |
-| target_group_id | ID группы-назначения | Integer | Фильтр по целевой группе |
-| start_date_from | Начало периода | Date | дата начала не ранее |
-| start_date_to | Конец периода | Date | дата начала не позднее |
-| is_active | Статус активности | Boolean | true/false |
-| limit | Лимит записей | Integer | максимум 100 |
-| offset | Смещение | Integer | для пагинации |
+| order_date_from | Начало периода | Date | дата приказа не ранее |
+| order_date_to | Конец периода | Date | дата приказа не позднее |
+| signed_by | Кто подписал | String | Фильтр по подписанту |
 
-Информация возвращается в виде списка движения:
+Информация возвращаемая в виде списка
 
-| Параметр  | Тип |
-|--------------------------|-----|
+| Параметр | Тип |
+|----------|-----|
 | id | Integer |
+| order_type_id | Integer |
+| order_type_code | String |
 | student_id | Integer |
-| movement_type | String |
-| start_date | Date |
-| source_group_id | Integer или NULL |
-| target_group_id | Integer или NULL |
+| order_number | String |
+| order_date | Date |
+| signed_by | String |
 | reason | String или NULL |
-| order_number | String или NULL |
-| end_date | Date или NULL |
-| is_active | Boolean |
 
-### ER-диаграмма
-![Диаграмма](erd.png)
+
+### Получить список типов приказов
+
+Информация возвращаемая в виде списка
+
+| Параметр | Тип |
+|----------|-----|
+| id | Integer |
+| code | String |
+| description | String или NULL |
+
+## ER-диаграмма
