@@ -6,16 +6,14 @@
 
 | Параметр | Пояснение | Обязательность | Тип | Ограничение | Значение по умолчанию |
 |----------|-----------|----------------|-----|-------------|-----------------------|
-| code | Код типа приказа | Обязательно | String | expulsion, transfer, reinstatement, academic_leave, return_from_leave | — |
-| description | Описание | Не обязательно | String | max 255 символов | NULL |
+| name | Название типа приказа | Обязательно | String | max 50 символов | — |
 
 Информация возвращаемая при создании типа приказа
 
 | Параметр | Тип |
 |----------|-----|
 | id | Integer |
-| code | String |
-| description | String или NULL |
+| name | String |
 
 ### Добавить содержание приказа (OrderDocument)
 
@@ -24,13 +22,12 @@
 | Параметр | Пояснение | Обязательность | Тип | Ограничение | Значение по умолчанию |
 |----------|-----------|----------------|-----|-------------|-----------------------|
 | order_type_id | ID типа приказа | Обязательно | Integer | > 0 | — |
-| student_id | ID студента | Обязательно | Integer | > 0 | — |
+| student_ids | Список ID студентов | Обязательно | List[Integer] | каждый ID > 0 | — |
 | order_number | Номер приказа | Обязательно | String | max 50 символов | — |
 | order_date | Дата приказа | Обязательно | Date | формат ГГГГ-ММ-ДД | — |
 | signed_by | Кто подписал | Обязательно | String | max 100 символов | — |
-| reason | Основание | Не обязательно | String | max 255 символов | NULL |
 
-Уникальная комбинация: `order_type_id` + `student_id` + `order_number`
+Уникальная комбинация: `order_number` + `order_type_id`
 
 Информация возвращаемая при создании содержания приказа
 
@@ -38,11 +35,10 @@
 |----------|-----|
 | id | Integer |
 | order_type_id | Integer |
-| student_id | Integer |
+| student_ids | List[Integer] |
 | order_number | String |
 | order_date | Date |
 | signed_by | String |
-| reason | String или NULL |
 
 ### Изменить содержание приказа по ID
 
@@ -51,11 +47,10 @@
 | Параметр | Пояснение | Обязательность | Тип | Ограничение |
 |----------|-----------|----------------|-----|-------------|
 | order_type_id | ID типа приказа | Не обязательно | Integer | > 0 |
-| student_id | ID студента | Не обязательно | Integer | > 0 |
+| student_ids | Список ID студентов | Не обязательно | List[Integer] | каждый ID > 0 |
 | order_number | Номер приказа | Не обязательно | String | max 50 символов |
 | order_date | Дата приказа | Не обязательно | Date | формат ГГГГ-ММ-ДД |
 | signed_by | Кто подписал | Не обязательно | String | max 100 символов |
-| reason | Основание | Не обязательно | String | max 255 символов |
 
 Информация возвращаемая при изменении
 
@@ -63,17 +58,14 @@
 |----------|-----|
 | id | Integer |
 | order_type_id | Integer |
-| student_id | Integer |
+| student_ids | List[Integer] |
 | order_number | String |
 | order_date | Date |
 | signed_by | String |
-| reason | String или NULL |
-
 
 ### Удалить содержание приказа по ID
 
 Вернет `True`, если удалено, иначе `False`
-
 
 ### Получить содержание приказа по ID
 
@@ -81,13 +73,11 @@
 |----------|-----------|-----|
 | id | ID записи | Integer |
 | order_type_id | ID типа приказа | Integer |
-| order_type_code | Код типа приказа | String |
-| student_id | ID студента | Integer |
+| order_type_name | Название типа приказа | String |
+| student_ids | Список ID студентов | List[Integer] |
 | order_number | Номер приказа | String |
 | order_date | Дата приказа | Date |
 | signed_by | Кто подписал | String |
-| reason | Основание | String или NULL |
-
 
 ### Получить список приказов по параметрам
 
@@ -96,7 +86,7 @@
 | Параметр | Пояснение | Тип | Описание |
 |----------|-----------|-----|----------|
 | order_type_id | ID типа приказа | Integer | Фильтр по типу |
-| student_id | ID студента | Integer | Фильтр по студенту |
+| student_id | ID студента | Integer | Фильтр по студенту (ищет в student_ids) |
 | order_date_from | Начало периода | Date | дата приказа не ранее |
 | order_date_to | Конец периода | Date | дата приказа не позднее |
 | signed_by | Кто подписал | String | Фильтр по подписанту |
@@ -107,13 +97,11 @@
 |----------|-----|
 | id | Integer |
 | order_type_id | Integer |
-| order_type_code | String |
-| student_id | Integer |
+| order_type_name | String |
+| student_ids | List[Integer] |
 | order_number | String |
 | order_date | Date |
 | signed_by | String |
-| reason | String или NULL |
-
 
 ### Получить список типов приказов
 
@@ -122,8 +110,6 @@
 | Параметр | Тип |
 |----------|-----|
 | id | Integer |
-| code | String |
-| description | String или NULL |
+| name | String |
 
 ## ER-диаграмма
-![Диаграмма](erd1.png)
