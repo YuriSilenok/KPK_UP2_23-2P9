@@ -9,7 +9,8 @@ class BaseModel(Model):
 
 class OrderType(BaseModel):
     """Тип приказа (справочник)"""
-    name = CharField(max_length=50, unique=True)  # Название типа приказа
+    name = CharField(max_length=50, unique=True)
+    is_active = BooleanField(default=True) 
 
 class OrderDocument(BaseModel):
     """Содержание приказа"""
@@ -17,19 +18,16 @@ class OrderDocument(BaseModel):
     student_ids = TextField()  # Список ID студентов (хранится как JSON)
     order_number = CharField(max_length=50)
     order_date = DateField()
-    signed_by = CharField(max_length=100)  # Кто подписал
+    signed_by = CharField(max_length=100)
+    is_active = BooleanField(default=True)
 
-    @property
-    def document_name(self) -> str:
-        """Возвращает название приказа"""
-        return f"Приказ №{self.order_number} от {self.order_date}"
+    class Meta:
+        constraints = [SQL('UNIQUE(order_type_id, order_number)')]
 
 def createTable():
-    """Создаёт таблицы в базе данных"""
     db.create_tables([OrderType, OrderDocument])
 
 def add_default_order_types():
-    """Добавляет стандартные типы приказов"""
     default_types = [
         'Отчисление',
         'Перевод',
