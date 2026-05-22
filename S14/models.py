@@ -1,47 +1,48 @@
 from peewee import *
 
+# Инициализация базы данных
 db = SqliteDatabase('load_calculation.db')
 
 class BaseModel(Model):
     is_active = BooleanField(default=True)
+
     class Meta:
         database = db
 
+# Преподаватель
 class Teacher(BaseModel):
     id = AutoField()
-    full_name = CharField(max_length=100)
+    name = CharField(max_length=100)
     department = CharField(max_length=50)
 
-class StudyPlan(BaseModel):
+# Учебный план (Curriculum)
+class Curriculum(BaseModel):
     id = AutoField()
-    name = CharField(max_length=100)
-    semester = IntegerField()
+    course_name = CharField(max_length=100)
+    total_hours = IntegerField()
 
+# Группа
 class Group(BaseModel):
     id = AutoField()
-    study_plan = ForeignKeyField(StudyPlan, backref='groups')
+    curriculum_id = IntegerField()
     name = CharField(max_length=50)
+    semester = IntegerField()
 
-class Subject(BaseModel):
+# Назначение преподавателя на группу
+class TeacherGroup(BaseModel):
     id = AutoField()
-    name = CharField(max_length=100)
+    teacher_id = IntegerField()
+    group_id = IntegerField()
+    assigned_hours = IntegerField()
 
-class StudyPlanSubject(BaseModel):
-    id = AutoField()
-    study_plan = ForeignKeyField(StudyPlan, backref='subjects')
-    subject = ForeignKeyField(Subject, backref='study_plans')
-    hours = IntegerField()
-
-class TeacherLoad(BaseModel):
-    id = AutoField()
-    teacher = ForeignKeyField(Teacher, backref='loads')
-    group = ForeignKeyField(Group, backref='teacher_loads')
-    study_plan_subject = ForeignKeyField(StudyPlanSubject, backref='teacher_loads')
-    total_hours = IntegerField()
+    class Meta:
+        indexes = (
+            (('teacher_id', 'group_id'), True),  # уникальная комбинация
+        )
 
 def initialize_db():
     with db:
-        db.create_tables([Teacher, StudyPlan, Group, Subject, StudyPlanSubject, TeacherLoad])
+        db.create_tables([Teacher, Curriculum, Group, TeacherGroup])
     print("База данных и таблицы созданы успешно.")
 
 if __name__ == '__main__':
