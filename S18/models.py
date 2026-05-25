@@ -12,13 +12,12 @@ class Table(Model):
 
 
 class Room(Table):
-    name = IntegerField()
-    status = BooleanField()
+    name = CharField()
 
 
 class Equipment(Table):
     name = CharField()
-    status = BooleanField()
+    is_active = BooleanField()
 
 
 class RoomEquipment(Table):
