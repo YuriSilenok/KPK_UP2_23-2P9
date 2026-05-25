@@ -4,6 +4,7 @@ from peewee import DoesNotExist
 from models import Permission
 from logic import check_permission
 from pydantic_models import EditPermission
+from service import decode_jwt
 
 
 async def require_permission(request: Request):
@@ -16,8 +17,10 @@ async def require_permission(request: Request):
        payload = функция_для_декодирования_или_сервис(token)
     3) Дальше передать параметр
        role_id = payload['role_id']
+    КРИТИЧЕСКИ ВАЖНО!!!
+    Здесь role_id - ЗАГЛУШКА
     """
-    answer = await check_permission(role_id = 1, method = str(request.method), url = str(request.url.path))
+    answer = await check_permission(role_id = decode_jwt(), method = str(request.method), url = str(request.url.path))
     if answer["status_code"] == 200:
         answer.pop("status_code")
         return answer
