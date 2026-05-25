@@ -16,7 +16,7 @@ class Room(Table):
 
 class Equipment(Table):
     id = AutoField()
-    name = CharField(unique=True)
+    name = CharField()
 
 
 class RoomEquipment(Table):
