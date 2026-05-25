@@ -21,8 +21,8 @@ class Equipment(Table):
 
 class RoomEquipment(Table):
     id = AutoField()
-    room = ForeignKeyField(Room)
-    equipment = ForeignKeyField(Equipment)
+    room_id = ForeignKeyField(Room)
+    equipment_id = ForeignKeyField(Equipment)
     is_active = BooleanField(default=True)
 
 
