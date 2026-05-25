@@ -4,7 +4,6 @@ from peewee import DoesNotExist
 from models import Permission
 from logic import check_permission
 from pydantic_models import EditPermission
-from stub import decode_jwt
 import requests
 
 
