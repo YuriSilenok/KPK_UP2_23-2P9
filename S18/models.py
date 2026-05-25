@@ -5,24 +5,25 @@ db = SqliteDatabase("database.db")
 
 
 class Table(Model):
-    id = AutoField()
-
     class Meta:
         database = db
 
 
 class Room(Table):
-    name = CharField()
+    id = AutoField()
+    name = CharField(unique=True)
 
 
 class Equipment(Table):
-    name = CharField()
-    is_active = BooleanField()
+    id = AutoField()
+    name = CharField(unique=True)
 
 
 class RoomEquipment(Table):
-    room_id = ForeignKeyField(Room)
-    equipment_id = ForeignKeyField(Equipment)
+    id = AutoField()
+    room = ForeignKeyField(Room)
+    equipment = ForeignKeyField(Equipment)
+    is_active = BooleanField(default=True)
 
 
 if __name__ == "__main__":
