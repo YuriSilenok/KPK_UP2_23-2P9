@@ -15,7 +15,7 @@ class Group(BaseModel):
     code = CharField()
     class_number = IntegerField()
     tutor_id = IntegerField(default=None, null=True)
-    status = BooleanField(default=True)  # True - активна, False - закрыта
+    is_active = BooleanField(default=True)  # True - активна, False - закрыта
     count_student = IntegerField(default=0)
 
     @staticmethod
@@ -44,7 +44,7 @@ class Subgroup(BaseModel):
     id_group = ForeignKeyField(Group, backref='subgroups', on_delete='CASCADE')
     subgroup_number = IntegerField()
     name = CharField(null=True, default=None)
-    status = BooleanField(default=True)
+    is_active = BooleanField(default=True)  # True - активна, False - закрыта/удалена
     count_student = IntegerField(default=0)
 
     class Meta:
@@ -70,3 +70,4 @@ def createTables():
 
 if __name__ == '__main__':
     createTables()
+    print("Таблицы успешно созданы в БД S8.db")
