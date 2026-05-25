@@ -18,6 +18,7 @@ class Department(BaseModel):
     abbreviation = CharField(max_length=20, unique=True)
     room_number = IntegerField()
     head = ForeignKeyField(Head, backref='departments', on_delete='RESTRICT')
+    is_active = BooleanField(default=True)
 
 class Specialty(BaseModel):
     code = CharField(max_length=20, unique=True)
