@@ -16,7 +16,7 @@ class Department(BaseModel):
     name = CharField(max_length=150, unique=True)
     abbreviation = CharField(max_length=20, unique=True)
     room_number = IntegerField(constraints=[Check('room_number > 0')])
-    head_id = IntegerField()
+    head_id = IntegerField(constraints=[Check('head_id > 0')])
     is_active = BooleanField(default=True)
 
 
