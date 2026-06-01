@@ -3,6 +3,7 @@ from peewee import (
     IntegerField, BooleanField, ForeignKeyField, Check
 )
 
+
 db = SqliteDatabase("database.db")
 
 
@@ -19,24 +20,17 @@ class Equipment(BaseModel):
     def delete(self):
         self.is_active = False
         self.save()
+        return 1
 
 
 class RoomEquipment(BaseModel):
-    room = IntegerField(constraints=[Check('room_id > 0')])
-    equipment = ForeignKeyField(Equipment, backref='room_equipment')
+    room_id = IntegerField(constraints=[Check('room > 0')])
+    equipment_id = ForeignKeyField(Equipment, backref='room_equipment')
     is_active = BooleanField(default=True)
 
-    class Meta:
-        indexes = (
-            (('room', 'equipment'), True),
-        )
-
     def delete(self):
-        self.is_active = False
-        self.save()
+        return self.delete_instance(recursive=False)
 
 
 if __name__ == "__main__":
-    db.create_tables([
-        Equipment,
-        RoomEquipment])
+    db.create_tables([Equipment, RoomEquipment])
