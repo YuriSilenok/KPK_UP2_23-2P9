@@ -20,11 +20,11 @@ class Equipment(BaseModel):
     def soft_delete(self):
         self.is_active = False
         self.save()
-        
+
         self.room_equipment.model.update(is_active=False).where(
             self.room_equipment.model.equipment_id == self.id
         ).execute()
-        
+
         return True
 
 
