@@ -1,5 +1,4 @@
-from peewee import SqliteDatabase, Model, AutoField, CharField, IntegerField, BooleanField, ForeignKeyField
-
+from peewee import SqliteDatabase, Model, AutoField, CharField, IntegerField, BooleanField, ForeignKeyField, Check
 
 db = SqliteDatabase("database.db")
 
@@ -15,10 +14,15 @@ class Equipment(Table):
 
 
 class RoomEquipment(Table):
-    id = AutoField()
-    room_id = IntegerField()
-    equipment_id = ForeignKeyField(Equipment)
+    room_id = IntegerField(constraints=[Check('room_id > 0')])
+    equipment_id = ForeignKeyField(Equipment, constraints=[Check('equipment_id > 0')])
     is_active = BooleanField(default=True)
+
+    class Meta:
+        primary_key = False
+        indexes = (
+            (('room_id', 'equipment_id'), True),
+        )
 
 
 if __name__ == "__main__":
