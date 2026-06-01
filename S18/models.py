@@ -17,18 +17,19 @@ class Equipment(BaseModel):
     name = CharField(null=False, column_name='equipment_name')
     is_active = BooleanField(default=True)
 
-    def delete(self):
+    def soft_delete(self):
         self.is_active = False
         self.save()
         return True
 
 
 class RoomEquipment(BaseModel):
+    id = AutoField()
     room_id = IntegerField(constraints=[Check('room_id > 0')])
     equipment_id = ForeignKeyField(Equipment, backref='room_equipment')
     is_active = BooleanField(default=True)
 
-    def delete(self):
+    def soft_delete(self):
         self.is_active = False
         self.save()
         return True
