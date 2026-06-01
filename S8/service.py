@@ -1,96 +1,187 @@
-import requests
-import json
+from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel, Field
+from typing import Optional, List
+from models import db, Subgroup, Student, createTables
 
-BASE_URL = "http://localhost:8000"
+# ==================== Pydantic схемы ====================
 
-
-def print_response(response):
-    print(f"Статус: {response.status_code}")
-    if response.text:
-        try:
-            print(f"Ответ: {json.dumps(response.json(), indent=2, ensure_ascii=False)}")
-        except:
-            print(f"Ответ: {response.text}")
-    print("-" * 50)
+class SubgroupCreate(BaseModel):
+    id_group: int = Field(..., gt=0, description="ID группы")
+    subgroup_number: int = Field(..., ge=1, description="Номер подгруппы")
 
 
-def add_subgroup(id_group: int, subgroup_number: int):
-    print(f"\n→ Создание подгруппы: id_group={id_group}, subgroup_number={subgroup_number}")
-    response = requests.post(
-        f"{BASE_URL}/subgroups",
-        json={"id_group": id_group, "subgroup_number": subgroup_number}
+class SubgroupUpdate(BaseModel):
+    id_group: Optional[int] = Field(None, gt=0, description="ID группы")
+    subgroup_number: Optional[int] = Field(None, ge=1, description="Номер подгруппы")
+
+
+class SubgroupResponse(BaseModel):
+    id_subgroup: int
+    id_group: int
+    subgroup_number: int
+    name: str
+    is_active: bool
+    count_student: int
+
+
+# ==================== FastAPI приложение ====================
+
+app = FastAPI(
+    title="Сервис подгрупп",
+    description="API для управления подгруппами (вариант №8)",
+    version="1.0.0"
+)
+
+
+@app.on_event("startup")
+def startup():
+    createTables()
+
+
+@app.post("/subgroups", response_model=SubgroupResponse, status_code=201)
+def add_subgroup(subgroup_data: SubgroupCreate):
+    """Добавить подгруппу"""
+    existing = Subgroup.get_or_none(
+        (Subgroup.id_group == subgroup_data.id_group) &
+        (Subgroup.subgroup_number == subgroup_data.subgroup_number)
     )
-    print_response(response)
-    return response.json().get("id_subgroup") if response.status_code == 201 else None
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="Подгруппа с таким id_group и subgroup_number уже существует"
+        )
+    
+    subgroup = Subgroup(
+        id_group=subgroup_data.id_group,
+        subgroup_number=subgroup_data.subgroup_number,
+        is_active=True
+    )
+    subgroup.save()
+    
+    return SubgroupResponse(
+        id_subgroup=subgroup.id_subgroup,
+        id_group=subgroup.id_group,
+        subgroup_number=subgroup.subgroup_number,
+        name=subgroup.name,
+        is_active=subgroup.is_active,
+        count_student=subgroup.count_student
+    )
 
 
-def get_subgroup(subgroup_id: int):
-    print(f"\n→ Получение подгруппы ID={subgroup_id}")
-    response = requests.get(f"{BASE_URL}/subgroups/{subgroup_id}")
-    print_response(response)
-    return response.json() if response.status_code == 200 else None
+@app.put("/subgroups/{subgroup_id}", response_model=SubgroupResponse)
+def update_subgroup(subgroup_id: int, update_data: SubgroupUpdate):
+    """Изменить подгруппу по ID (обновить id_group и/или subgroup_number)"""
+    subgroup = Subgroup.get_or_none(Subgroup.id_subgroup == subgroup_id)
+    if subgroup is None:
+        raise HTTPException(status_code=404, detail="Подгруппа не найдена")
+    
+    if not subgroup.is_active:
+        raise HTTPException(status_code=400, detail="Нельзя изменить закрытую подгруппу")
+    
+    # Обновляем поля, если они переданы
+    if update_data.id_group is not None:
+        subgroup.id_group = update_data.id_group
+    if update_data.subgroup_number is not None:
+        subgroup.subgroup_number = update_data.subgroup_number
+    
+    # Проверка уникальности после изменения
+    existing = Subgroup.get_or_none(
+        (Subgroup.id_group == subgroup.id_group) &
+        (Subgroup.subgroup_number == subgroup.subgroup_number) &
+        (Subgroup.id_subgroup != subgroup_id)
+    )
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="Подгруппа с таким id_group и subgroup_number уже существует"
+        )
+    
+    subgroup.save()
+    
+    return SubgroupResponse(
+        id_subgroup=subgroup.id_subgroup,
+        id_group=subgroup.id_group,
+        subgroup_number=subgroup.subgroup_number,
+        name=subgroup.name,
+        is_active=subgroup.is_active,
+        count_student=subgroup.count_student
+    )
 
 
-def update_subgroup(subgroup_id: int, id_group: int = None, subgroup_number: int = None):
-    print(f"\n→ Обновление подгруппы ID={subgroup_id}: id_group={id_group}, subgroup_number={subgroup_number}")
-    data = {}
-    if id_group is not None:
-        data["id_group"] = id_group
-    if subgroup_number is not None:
-        data["subgroup_number"] = subgroup_number
-    response = requests.put(f"{BASE_URL}/subgroups/{subgroup_id}", json=data)
-    print_response(response)
-    return response.json() if response.status_code == 200 else None
-
-
+@app.delete("/subgroups/{subgroup_id}", response_model=bool)
 def delete_subgroup(subgroup_id: int):
-    print(f"\n→ Удаление подгруппы ID={subgroup_id}")
-    response = requests.delete(f"{BASE_URL}/subgroups/{subgroup_id}")
-    print(f"Статус: {response.status_code}")
-    print(f"Ответ (bool): {response.text}")
-    print("-" * 50)
-    return response.status_code == 200 and response.text == "true"
+    """Удалить подгруппу по ID (мягкое удаление)
+    
+    Возвращает:
+    - True - подгруппа была закрыта
+    - False - подгруппа уже закрыта или не найдена
+    """
+    subgroup = Subgroup.get_or_none(Subgroup.id_subgroup == subgroup_id)
+    if subgroup is None:
+        return False
+    
+    if not subgroup.is_active:
+        return False
+    
+    subgroup.is_active = False
+    subgroup.save()
+    return True
 
 
-def get_all_subgroups(params: dict = None):
-    print(f"\n→ Получение списка подгрупп с фильтрами: {params}")
-    response = requests.get(f"{BASE_URL}/subgroups", params=params or {})
-    print_response(response)
-    return response.json() if response.status_code == 200 else []
+@app.get("/subgroups/{subgroup_id}", response_model=SubgroupResponse)
+def get_subgroup(subgroup_id: int):
+    """Получить подгруппу по ID"""
+    subgroup = Subgroup.get_or_none(Subgroup.id_subgroup == subgroup_id)
+    if subgroup is None:
+        raise HTTPException(status_code=404, detail="Подгруппа не найдена")
+    
+    return SubgroupResponse(
+        id_subgroup=subgroup.id_subgroup,
+        id_group=subgroup.id_group,
+        subgroup_number=subgroup.subgroup_number,
+        name=subgroup.name,
+        is_active=subgroup.is_active,
+        count_student=subgroup.count_student
+    )
 
 
-def main():
-    print("=" * 50)
-    print("Клиент сервиса подгрупп (вариант №8)")
-    print("=" * 50)
+@app.get("/subgroups", response_model=List[SubgroupResponse])
+def get_subgroups(
+    id_group: Optional[int] = Query(None, description="ID группы"),
+    subgroup_number: Optional[int] = Query(None, description="Номер подгруппы"),
+    name: Optional[str] = Query(None, description="Наименование подгруппы"),
+    count_student: Optional[int] = Query(None, description="Количество студентов")
+):
+    """Получить список подгрупп по заданным параметрам (только активные)"""
+    query = Subgroup.select().where(Subgroup.is_active == True)
     
-    # 1. Создание подгрупп
-    sg1 = add_subgroup(1, 1)
-    sg2 = add_subgroup(1, 2)
-    sg3 = add_subgroup(2, 1)
+    if id_group is not None:
+        query = query.where(Subgroup.id_group == id_group)
+    if subgroup_number is not None:
+        query = query.where(Subgroup.subgroup_number == subgroup_number)
     
-    # 2. Получение по ID
-    if sg1:
-        get_subgroup(sg1)
+    # Фильтрация по name (на уровне Python, так как name - вычисляемое поле)
+    subgroups = list(query)
     
-    # 3. Обновление (меняем id_group и subgroup_number)
-    if sg1:
-        update_subgroup(sg1, id_group=3, subgroup_number=5)
+    if name:
+        subgroups = [subgroup for subgroup in subgroups if name.lower() in subgroup.name.lower()]
     
-    # 4. Получение списка с фильтрами
-    get_all_subgroups()
-    get_all_subgroups({"id_group": 3})
-    get_all_subgroups({"subgroup_number": 5})
-    get_all_subgroups({"name": "3-5"})
+    if count_student is not None:
+        subgroups = [subgroup for subgroup in subgroups if subgroup.count_student == count_student]
     
-    # 5. Удаление
-    if sg1:
-        delete_subgroup(sg1)
-    
-    # 6. Проверка после удаления
-    print("\n→ Проверка после удаления (только активные)")
-    get_all_subgroups()
+    return [
+        SubgroupResponse(
+            id_subgroup=subgroup.id_subgroup,
+            id_group=subgroup.id_group,
+            subgroup_number=subgroup.subgroup_number,
+            name=subgroup.name,
+            is_active=subgroup.is_active,
+            count_student=subgroup.count_student
+        )
+        for subgroup in subgroups
+    ]
 
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
