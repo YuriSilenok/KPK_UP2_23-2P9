@@ -9,25 +9,35 @@ class BaseModel(Model):
 
 
 class Subgroup(BaseModel):
-    id_group = IntegerField() 
+    id_subgroup = AutoField() 
+    id_group = IntegerField()
     subgroup_number = IntegerField()
-    name = CharField(null=True, default=None)
-    is_active = BooleanField(default=True) 
-    count_student = IntegerField(default=0)
+    is_active = BooleanField(default=True)
 
     class Meta:
         indexes = (
             (('id_group', 'subgroup_number'), True),
         )
 
+    def save(self, *args, **kwargs):
+        """Валидация перед сохранением (исправление №2)"""
+        if self.id_group <= 0:
+            raise ValueError("id_group должен быть больше 0")
+        if self.subgroup_number < 1:
+            raise ValueError("subgroup_number должен быть больше или равен 1")
+        super().save(*args, **kwargs)
+
     @property
-    def full_name(self) -> str:
-        """Полное наименование подгруппы"""
-        return f"Group-{self.id_group}-{self.subgroup_number}"
+    def name(self) -> str:
+        return f"{self.id_group}-{self.subgroup_number}"
+
+    @property
+    def count_student(self) -> int:
+        return self.students.count()
 
 
 class Student(BaseModel):
-    id_student = IntegerField(unique=True) 
+    id_student = IntegerField(unique=True)
     id_subgroup = ForeignKeyField(Subgroup, backref='students', null=True, default=None, on_delete='SET NULL')
 
 
