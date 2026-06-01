@@ -9,11 +9,6 @@ class Table(Model):
         database = db
 
 
-class Room(Table):
-    id = AutoField()
-    name = CharField(unique=True)
-
-
 class Equipment(Table):
     id = AutoField()
     name = CharField()
@@ -21,14 +16,13 @@ class Equipment(Table):
 
 class RoomEquipment(Table):
     id = AutoField()
-    room_id = ForeignKeyField(Room)
+    room_id = IntegerField()
     equipment_id = ForeignKeyField(Equipment)
     is_active = BooleanField(default=True)
 
 
 if __name__ == "__main__":
     db.create_tables([
-        Room,
         Equipment,
         RoomEquipment
     ])
