@@ -48,3 +48,5 @@ def createTables():
 if __name__ == '__main__':
     createTables()
     print("Таблицы успешно созданы в БД S8.db")
+
+
