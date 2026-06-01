@@ -14,22 +14,24 @@ class BaseModel(Model):
 
 class Equipment(BaseModel):
     id = AutoField()
-    name = CharField()
+    name = CharField(null=False, column_name='equipment_name')
     is_active = BooleanField(default=True)
 
     def delete(self):
         self.is_active = False
         self.save()
-        return 1
+        return True
 
 
 class RoomEquipment(BaseModel):
-    room_id = IntegerField(constraints=[Check('room > 0')])
+    room_id = IntegerField(constraints=[Check('room_id > 0')])
     equipment_id = ForeignKeyField(Equipment, backref='room_equipment')
     is_active = BooleanField(default=True)
 
     def delete(self):
-        return self.delete_instance(recursive=False)
+        self.is_active = False
+        self.save()
+        return True
 
 
 if __name__ == "__main__":
