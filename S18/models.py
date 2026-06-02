@@ -1,7 +1,6 @@
 from peewee import (
     SqliteDatabase, Model, AutoField, CharField,
-    IntegerField, BooleanField, ForeignKeyField, Check
-)
+    IntegerField, BooleanField, ForeignKeyField, Check)
 
 
 db = SqliteDatabase("database.db")
