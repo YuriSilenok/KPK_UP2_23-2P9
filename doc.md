@@ -95,4 +95,4 @@
 
 # Диаграмма
 
-![alt text](image.png)
+![alt text](erd.png)
