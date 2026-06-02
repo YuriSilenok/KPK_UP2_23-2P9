@@ -25,7 +25,6 @@ class JobPosition(Table):
 class EmployeePosition(Table):
     employee_id = ForeignKeyField('Employee')
     position_id = ForeignKeyField(JobPosition)
-    assigned_at = DateTimeField(null=False, default=datetime.now)
 
 
 class Vacation(Table):
