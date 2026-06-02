@@ -16,6 +16,8 @@ class Table(Model):
         database = db
 
 
+class Employee(Table): ...
+
 class JobPosition(Table):
     name = CharField(max_length=255, null=False, unique=True)
     rate = IntegerField(null=False)
@@ -23,12 +25,12 @@ class JobPosition(Table):
 
 
 class EmployeePosition(Table):
-    employee_id = ForeignKeyField('Employee')
+    employee_id = ForeignKeyField(Employee)
     position_id = ForeignKeyField(JobPosition)
 
 
 class Vacation(Table):
-    employee_id = ForeignKeyField("Employee")
+    employee_id = ForeignKeyField(Employee)
     start_time = DateTimeField(null=False)
     end_time = DateTimeField(null=False)
     
@@ -37,7 +39,7 @@ class Vacation(Table):
 
 
 class SickLeave(Table):
-    employee_id = ForeignKeyField("Employee")
+    employee_id = ForeignKeyField(Employee)
     start_time = DateTimeField(null=False)
     end_time = DateTimeField(null=False)
     
@@ -47,7 +49,7 @@ class SickLeave(Table):
 
 
 def seed():
-    db.create_tables([JobPosition, Absence, EmployeePosition])
+    db.create_tables([Employee, JobPosition, SickLeave, Vacation, EmployeePosition])
 
 
 if __name__ == "__main__":
