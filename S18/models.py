@@ -17,16 +17,6 @@ class Equipment(BaseModel):
     name = CharField(null=False)
     is_active = BooleanField(default=True)
 
-    def soft_delete(self):
-        self.is_active = False
-        self.save()
-
-        self.room_equipment.model.update(is_active=False).where(
-            self.room_equipment.model.equipment_id == self.id
-        ).execute()
-
-        return True
-
 
 class RoomEquipment(BaseModel):
     id = AutoField()
@@ -38,11 +28,6 @@ class RoomEquipment(BaseModel):
         indexes = (
             (('room_id', 'equipment_id'), True),
         )
-
-    def soft_delete(self):
-        self.is_active = False
-        self.save()
-        return True
 
 
 if __name__ == "__main__":
