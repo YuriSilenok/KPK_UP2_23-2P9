@@ -28,10 +28,22 @@ class EmployeePosition(Table):
     assigned_at = DateTimeField(null=False, default=datetime.now)
 
 
-class Absence(Table):
-    employee_id = ForeignKeyField('Employee')
+class Vacation(Table):
+    employee_id = ForeignKeyField("Employee")
     start_time = DateTimeField(null=False)
     end_time = DateTimeField(null=False)
+    
+    class Meta:
+        constraints = [Check('end_time > start_time')]
+
+
+class SickLeave(Table):
+    employee_id = ForeignKeyField("Employee")
+    start_time = DateTimeField(null=False)
+    end_time = DateTimeField(null=False)
+    
+    class Meta:
+        constraints = [Check('end_time > start_time')]
 
 
 
