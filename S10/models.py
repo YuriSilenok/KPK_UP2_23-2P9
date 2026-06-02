@@ -32,3 +32,12 @@ class Absence(Table):
     employee_id = ForeignKeyField('Employee')
     start_time = DateTimeField(null=False)
     end_time = DateTimeField(null=False)
+
+
+
+def seed():
+    db.create_tables([JobPosition, Absence, EmployeePosition])
+
+
+if __name__ == "__main__":
+    seed()
