@@ -34,6 +34,11 @@ class RoomEquipment(BaseModel):
     equipment_id = ForeignKeyField(Equipment, backref='room_equipment')
     is_active = BooleanField(default=True)
 
+    class Meta:
+        indexes = (
+            (('room_id', 'equipment_id'), True),
+        )
+
     def soft_delete(self):
         self.is_active = False
         self.save()
