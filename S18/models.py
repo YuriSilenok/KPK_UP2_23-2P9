@@ -21,7 +21,7 @@ class Equipment(BaseModel):
 class RoomEquipment(BaseModel):
     id = AutoField()
     room_id = IntegerField(constraints=[Check('room_id > 0')])
-    equipment_id = ForeignKeyField(Equipment, backref='room_equipment')
+    equipment = ForeignKeyField(Equipment, backref='room_equipment')
     is_active = BooleanField(default=True)
 
 
