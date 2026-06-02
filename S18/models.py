@@ -24,12 +24,6 @@ class RoomEquipment(BaseModel):
     equipment_id = ForeignKeyField(Equipment, backref='room_equipment')
     is_active = BooleanField(default=True)
 
-    class Meta:
-        indexes = (
-            (('room_id', 'equipment_id'), True),
-        )
-
 
 if __name__ == "__main__":
     db.create_tables([Equipment, RoomEquipment])
-
