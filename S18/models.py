@@ -14,7 +14,7 @@ class BaseModel(Model):
 
 class Equipment(BaseModel):
     id = AutoField()
-    name = CharField(null=False, column_name='equipment_name')
+    name = CharField(null=False)
     is_active = BooleanField(default=True)
 
     def soft_delete(self):
