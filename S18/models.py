@@ -32,3 +32,4 @@ class RoomEquipment(BaseModel):
 
 if __name__ == "__main__":
     db.create_tables([Equipment, RoomEquipment])
+
