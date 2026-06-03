@@ -132,7 +132,7 @@ def get_equipment_by_room(room_id: int):
                 id=re.equipment.id,
                 name=re.equipment.name,
                 room_id=re.room_id,
-                is_active=re.is_active))
+                is_active=re.equipment.is_active))
 
     return result
 
