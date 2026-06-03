@@ -1,3 +1,4 @@
 peewee
 fastapi
 pydantic
+uvicorn
