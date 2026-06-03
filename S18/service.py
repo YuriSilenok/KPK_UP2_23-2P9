@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from uvicorn import run
 
 from models import Equipment, RoomEquipment
 
@@ -10,7 +9,7 @@ app = FastAPI()
 
 
 class EquipmentCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=255)
+    name: str = Field(..., max_length=255)
 
 
 class EquipmentResponse(BaseModel):
@@ -20,7 +19,7 @@ class EquipmentResponse(BaseModel):
 
 
 class EquipmentBindRoom(BaseModel):
-    id: int
+    id: int = Field(..., gt=0)
     room_id: int = Field(..., gt=0)
 
 
@@ -52,7 +51,7 @@ def create_equipment(data: EquipmentCreate):
         is_active=equipment.is_active)
 
 
-@app.put("/equipment/bind", response_model=RoomEquipmentResponse)
+@app.patch("/equipment/bind", response_model=RoomEquipmentResponse)
 def bind_equipment_to_room(data: EquipmentBindRoom):
     try:
         equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active)
@@ -101,7 +100,7 @@ def delete_equipment(equipment_id: int):
         return SuccessResponse(success=True)
 
     except Equipment.DoesNotExist:
-        return HTTPException(404, detail=False)
+        return SuccessResponse(success=False)
 
 
 @app.delete("/equipment/unbind/{equipment_id}", response_model=SuccessResponse)
@@ -117,7 +116,7 @@ def unbind_equipment_from_room(equipment_id: int):
         return SuccessResponse(success=True)
 
     except RoomEquipment.DoesNotExist:
-        return  HTTPException(404, detail=False)
+        return SuccessResponse(success=False)
 
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
@@ -169,7 +168,3 @@ def list_equipment(
             is_active=equipment.is_active))
 
     return result
-
-
-if __name__ == "__main__":
-    run("service:app", host="0.0.0.0", port=8000, reload=True)
