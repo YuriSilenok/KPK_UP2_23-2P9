@@ -9,7 +9,7 @@ app = FastAPI()
 
 
 class EquipmentCreate(BaseModel):
-    name: str = Field(..., max_length=255)
+    name: str = Field(..., min_length=1, max_length=255)
 
 
 class EquipmentResponse(BaseModel):
