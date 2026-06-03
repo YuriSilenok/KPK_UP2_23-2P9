@@ -101,7 +101,7 @@ def delete_equipment(equipment_id: int):
         return SuccessResponse(success=True)
 
     except Equipment.DoesNotExist:
-        return SuccessResponse(success=False)
+        return HTTPException(404, detail=False)
 
 
 @app.delete("/equipment/unbind/{equipment_id}", response_model=SuccessResponse)
@@ -117,7 +117,7 @@ def unbind_equipment_from_room(equipment_id: int):
         return SuccessResponse(success=True)
 
     except RoomEquipment.DoesNotExist:
-        return SuccessResponse(success=False)
+        return  HTTPException(404, detail=False)
 
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
@@ -163,14 +163,13 @@ def list_equipment(
                 continue
 
         result.append(EquipmentListResponse(
-            id=room_equipment.id if room_equipment else equipment.id,
+            id=equipment.id,
             name=equipment.name,
             room_id=room_equipment.room_id if room_equipment else None,
-            is_active=room_equipment.is_active if room_equipment else equipment.is_active))
+            is_active=equipment.is_active))
 
     return result
 
 
 if __name__ == "__main__":
     run("service:app", host="0.0.0.0", port=8000, reload=True)
-
