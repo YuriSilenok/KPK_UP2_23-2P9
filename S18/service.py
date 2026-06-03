@@ -121,6 +121,11 @@ def unbind_equipment_from_room(equipment_id: int):
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
 def get_equipment_by_room(room_id: int):
+    if room_id <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="room_id должен быть положительным числом")
+
     room_equipments = RoomEquipment.select().where(
         RoomEquipment.room_id == room_id,
         RoomEquipment.is_active)
@@ -145,6 +150,13 @@ def list_equipment(
 
     query = Equipment.select()
 
+    if room_id is not None:
+        subquery = RoomEquipment.select(RoomEquipment.equipment).where(
+            RoomEquipment.room_id == room_id,
+            RoomEquipment.is_active)
+
+        query = query.where(Equipment.id.in_(subquery))
+
     if ids is not None:
         query = query.where(Equipment.id.in_(ids))
 
@@ -155,11 +167,8 @@ def list_equipment(
     for equipment in query:
         room_equipment = RoomEquipment.select().where(
             RoomEquipment.equipment == equipment.id,
-            RoomEquipment.is_active).first()
-
-        if room_id is not None:
-            if room_equipment is None or room_equipment.room_id != room_id:
-                continue
+            RoomEquipment.is_active
+        ).first()
 
         result.append(EquipmentListResponse(
             id=equipment.id,
