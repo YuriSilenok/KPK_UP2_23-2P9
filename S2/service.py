@@ -91,7 +91,11 @@ def get_profile_or_404(profile_id: int) -> Profile:
 # ---------------- Создание профиля
 @app.post("/profiles/", response_model=ProfileResponse)
 def create_profile(data: ProfileCreate):
-    # Проверка на уникальность email или телефон
+    # Проверка уникальности email или телефона
+    existing_profile = Profile.select().where((Profile.email == data.email) | (Profile.telephone == preprocess_phone_number(data.telephone))).first()
+    if existing_profile:
+        raise ValueError("Профиль с таким email или телефоном уже существует.")
+
     # Создаем профиль
     profile = Profile.create(
         full_name=data.full_name,
@@ -135,7 +139,10 @@ def update_profile(profile_id: int, data: ProfileUpdate):
         profile.email = data.email
     if data.path_to_photo is not None:
         profile.path_to_photo = data.path_to_photo
-
+    # Проверка уникальности email или телефона
+    existing_profile = Profile.select().where(profile.email) | (profile.telephone).first()
+    if existing_profile:
+        raise ValueError("Профиль с таким email или телефоном уже существует.")
     profile.save()
 
     return ProfileResponse(
@@ -167,6 +174,7 @@ def list_profiles(
     query = Profile.select()
     if full_name:
         query = query.where(Profile.full_name.contains(full_name))
+    if is_active:
         query = query.where(Profile.is_active == is_active)
 
     profiles = list(query)
