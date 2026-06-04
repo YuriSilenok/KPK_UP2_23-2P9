@@ -8,16 +8,17 @@ class BaseModel(Model):
         database = db
 
 class Profile(BaseModel):
-    id = AutoFiled()
+    id = PrimaryKeyField()
     full_name = CharField()
     telephone = CharField(min_length=10, max_length=10, unique=True)
     email = CharField(max_length=254, unique=True)
     path_to_photo = CharField()
     is_active = BooleanField(default=True)
 
+
 class NotificationSettings(BaseModel):
-    id = AutoFiled()
-    profile_id = ForeignKeyField(Profile, backref='notification_settings')
+    id = PrimaryKeyField()
+    profile_id = ForeignKeyField(Profile, backref='notification_settings', on_delete=CASCADE)
     parameter = CharField()
     value = CharField()
 
