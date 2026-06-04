@@ -99,8 +99,8 @@ def delete_equipment(equipment_id: int):
 
         return SuccessResponse(success=True)
 
-    except Equipment.DoesNotExist:
-        return SuccessResponse(success=False)
+    except Equipment.DoesNotExist as e:
+        raise HTTPException(404, False) from e
 
 
 @app.delete("/equipment/unbind/{equipment_id}", response_model=SuccessResponse)
@@ -115,8 +115,8 @@ def unbind_equipment_from_room(equipment_id: int):
 
         return SuccessResponse(success=True)
 
-    except RoomEquipment.DoesNotExist:
-        return SuccessResponse(success=False)
+    except RoomEquipment.DoesNotExist as e:
+        raise HTTPException(404, False) from e
 
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
