@@ -21,6 +21,10 @@ class JobPosition(Table):
     rate = IntegerField(null=False)
     is_part_time = BooleanField(null=False, default=False)
 
+    
+    class Meta:
+        constraints = [Check('rate > 0')]
+
 
 class EmployeeJobPosition(Table):
     employee_id = IntegerField(null=False)
