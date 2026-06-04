@@ -37,10 +37,10 @@ API включает следующие эндпоинты:
 
 # ============================ Pydantic схемы ============================
 class ProfileCreate(BaseModel):
-    full_name: str = Field(..., min_length=1, max_length=200)
+    full_name: str = Field(...)
     telephone: str = Field(..., min_length=10, max_length=10)
     email: EmailStr
-    path_to_photo: str = Field(..., min_length=1, max_length=255)
+    path_to_photo: str = Field(...)
 
 class ProfileResponse(BaseModel):
     id: int
@@ -51,10 +51,10 @@ class ProfileResponse(BaseModel):
     is_active: bool
 
 class ProfileUpdate(BaseModel):
-    full_name: Optional[str] = Field(None, min_length=1, max_length=200)
-    telephone: Optional[str] = Field(None, min_length=5, max_length=20)
+    full_name: Optional[str] = Field(None)
+    telephone: Optional[str] = Field(None, min_length=10, max_length=10)
     email: Optional[EmailStr]
-    path_to_photo: Optional[str] = Field(None, min_length=1, max_length=255)
+    path_to_photo: Optional[str] = Field(None)
 
 class NotificationResponse(BaseModel):
     id: int
@@ -135,8 +135,6 @@ def update_profile(profile_id: int, data: ProfileUpdate):
         profile.email = data.email
     if data.path_to_photo is not None:
         profile.path_to_photo = data.path_to_photo
-    if data.is_active is not None:
-        profile.is_active = data.is_active
 
     profile.save()
 
@@ -162,7 +160,7 @@ def delete_profile(profile_id: int):
 @app.get("/profiles/", response_model=List[ProfileResponse])
 def list_profiles(
     full_name: Optional[str] = Query(None),
-    telephone: Optional[str] = preprocess_phone_number(Query(None)),
+    telephone: Optional[str] = Query(None),
     email: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(True)
 ):
@@ -170,7 +168,7 @@ def list_profiles(
     if full_name:
         query = query.where(Profile.full_name.contains(full_name))
     if telephone:
-        query = query.where(Profile.telephone.contains(telephone))
+        query = query.where(Profile.telephone.contains(preprocess_phone_number(telephone)))
     if email:
         query = query.where(Profile.email.contains(email))
     if is_active is not None:
@@ -198,7 +196,6 @@ def get_notifications(profile_id: int):
     return [
         NotificationResponse(
             id=n.id,
-            profile=profile.id,
             parameter=n.parameter,
             value=n.value
         )
