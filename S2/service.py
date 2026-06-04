@@ -2,8 +2,6 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from peewee import *
-
-# Импорт моделей из models.py (предполагается, что там определены модели: Profile, NotificationSettings, db)
 from models import Profile, NotificationSettings
 
 app = FastAPI(title="Profiles API", description="API для управления пользователями и их настройками", version="1.0.0")
