@@ -8,16 +8,22 @@ class BaseModel(Model):
         database = db
 
 class Profile(BaseModel):
-    full_name = CharField()
-    telephone = CharField(max_length=10, unique=True)
-    email = CharField(max_length=254, unique=True)
-    path_to_photo = CharField()
+    id = PrimaryKeyField()
+    full_name = CharField(max_length=255)
+    telephone = CharField( max_length=10, unique=True)
+    email = CharField(max_length=255, unique=True)
+    path_to_photo = CharField(max_length=255)
     is_active = BooleanField(default=True)
 
+
 class NotificationSettings(BaseModel):
+    id = PrimaryKeyField()
     profile_id = ForeignKeyField(Profile, backref='notification_settings')
-    parameter = CharField()
-    value = CharField()
+    parameter = CharField(max_length=255)
+    value = CharField(max_length=255)
+
+def init_db():
+    db.create_tables([Profile, NotificationSettings])
 
 if __name__ == '__main__':
-    db.create_tables([Profile, NotificationSettings])
+    init_db()
