@@ -73,6 +73,21 @@ def create_equipment(data: EquipmentCreate):
 
 @app.patch("/equipment/bind", response_model=RoomEquipmentResponse)
 def bind_equipment_to_room(data: EquipmentBindRoom):
+    """
+    Назначение: Привязывает оборудование к комнате (создает или обновляет связь).
+
+    HTTP-метод: PATCH
+    Параметры запроса:
+        - body: EquipmentBindRoom (JSON-объект с id оборудования и room_id комнаты)
+
+    Пример ответа:
+    {
+        "id": 5,
+        "name": "Проектор",
+        "room_id": 101,
+        "is_active": true
+    }
+    """
     if data.room_id <= 0:
         raise HTTPException(
             status_code=400,
