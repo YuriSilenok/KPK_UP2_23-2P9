@@ -1,4 +1,4 @@
-from peewee import Model, SqliteDatabase, AutoField, BooleanField, CharField, IntegerField, ForeignKeyField, DateTimeField, Check
+from peewee import SQL, Model, SqliteDatabase, AutoField, BooleanField, CharField, IntegerField, ForeignKeyField, DateTimeField, Check
 from datetime import datetime
 
 db = SqliteDatabase('employee_service.db')
@@ -29,6 +29,10 @@ class JobPosition(Table):
 class EmployeeJobPosition(Table):
     employee_id = IntegerField(null=False)
     job_position_id = ForeignKeyField(JobPosition)
+
+    class Meta:
+        constraints = [SQL("unique(employee_id, job_position_id)")]
+
 
 class Vacation(Table):
     employee_id = IntegerField(null=False)
