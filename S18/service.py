@@ -9,21 +9,25 @@ app = FastAPI()
 
 
 class EquipmentCreate(BaseModel):
+    """Схема валидации данных для создания нового оборудования."""
     name: str = Field(..., min_length=1, max_length=255)
 
 
 class EquipmentResponse(BaseModel):
+    """Схема ответа с базовой информацией об оборудовании."""
     id: int
     name: str
     is_active: bool
 
 
 class EquipmentBindRoom(BaseModel):
+    """Схема валидации данных для привязки оборудования к комнате."""
     id: int = Field(..., gt=0)
     room_id: int = Field(..., gt=0)
 
 
 class RoomEquipmentResponse(BaseModel):
+    """Схема ответа, подтверждающая успешную привязку оборудования к комнате."""
     id: int
     name: str
     room_id: int
@@ -31,10 +35,12 @@ class RoomEquipmentResponse(BaseModel):
 
 
 class SuccessResponse(BaseModel):
+    """Схема стандартного успешного ответа API."""
     success: bool
 
 
 class EquipmentListResponse(BaseModel):
+    """Схема ответа для расширенного списка оборудования с указанием комнаты."""
     id: int
     name: str
     room_id: Optional[int] = None
@@ -43,6 +49,20 @@ class EquipmentListResponse(BaseModel):
 
 @app.post("/equipment/", response_model=EquipmentResponse)
 def create_equipment(data: EquipmentCreate):
+    """
+    Назначение: Создает новую запись оборудования.
+
+    HTTP-метод: POST
+    Параметры запроса:
+        - body: EquipmentCreate (JSON-объект с именем оборудования)
+
+    Пример ответа:
+    {
+        "id": 1,
+        "name": "Принтер HP",
+        "is_active": true
+    }
+    """
     equipment = Equipment.create(name=data.name, is_active=True)
 
     return EquipmentResponse(
@@ -53,6 +73,21 @@ def create_equipment(data: EquipmentCreate):
 
 @app.patch("/equipment/bind", response_model=RoomEquipmentResponse)
 def bind_equipment_to_room(data: EquipmentBindRoom):
+    """
+    Назначение: Привязывает оборудование к комнате (создает или обновляет связь).
+
+    HTTP-метод: PATCH
+    Параметры запроса:
+        - body: EquipmentBindRoom (JSON-объект с id оборудования и room_id комнаты)
+
+    Пример ответа:
+    {
+        "id": 5,
+        "name": "Проектор",
+        "room_id": 101,
+        "is_active": true
+    }
+    """
     try:
         equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active)
 
@@ -88,6 +123,18 @@ def bind_equipment_to_room(data: EquipmentBindRoom):
 
 @app.delete("/equipment/{equipment_id}", response_model=SuccessResponse)
 def delete_equipment(equipment_id: int):
+    """
+    Назначение: Логически удаляет оборудование и деактивирует все его связи с комнатами.
+
+    HTTP-метод: DELETE
+    Параметры запроса:
+        - path: equipment_id (int) — идентификатор удаляемого оборудования
+
+    Пример ответа:
+    {
+        "success": true
+    }
+    """
     try:
         equipment = Equipment.get(Equipment.id == equipment_id)
         equipment.is_active = False
@@ -105,6 +152,18 @@ def delete_equipment(equipment_id: int):
 
 @app.delete("/equipment/unbind/{equipment_id}", response_model=SuccessResponse)
 def unbind_equipment_from_room(equipment_id: int):
+    """
+    Назначение: Отвязывает оборудование от комнаты (деактивирует связь).
+
+    HTTP-метод: DELETE
+    Параметры запроса:
+        - path: equipment_id (int) — идентификатор отвязываемого оборудования
+
+    Пример ответа:
+    {
+        "success": true
+    }
+    """
     try:
         room_equipment = RoomEquipment.get(
             RoomEquipment.equipment == equipment_id,
@@ -121,6 +180,23 @@ def unbind_equipment_from_room(equipment_id: int):
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
 def get_equipment_by_room(room_id: int):
+    """
+    Назначение: Возвращает список активного оборудования, находящегося в конкретной комнате.
+
+    HTTP-метод: GET
+    Параметры запроса:
+        - path: room_id (int) — идентификатор комнаты для поиска
+
+    Пример ответа:
+    [
+        {
+            "id": 1,
+            "name": "Ноутбук",
+            "room_id": 12,
+            "is_active": true
+        }
+    ]
+    """
     if room_id <= 0:
         raise HTTPException(
             status_code=400,
@@ -147,7 +223,31 @@ def list_equipment(
         room_id: Optional[int] = Query(None),
         ids: Optional[List[int]] = Query(None),
         is_active: Optional[bool] = Query(None)):
+    """
+    Назначение: Возвращает отфильтрованный список оборудования со сведениями о текущей комнате.
 
+    HTTP-метод: GET
+    Параметры запроса:
+        - query: room_id (Optional[int]) — фильтр по идентификатору комнаты
+        - query: ids (Optional[List[int]]) — фильтр по списку идентификаторов оборудования
+        - query: is_active (Optional[bool]) — фильтр по статусу активности оборудования
+
+    Пример ответа:
+    [
+        {
+            "id": 1,
+            "name": "Сканер",
+            "room_id": null,
+            "is_active": true
+        },
+        {
+            "id": 2,
+            "name": "Монитор",
+            "room_id": 15,
+            "is_active": true
+        }
+    ]
+    """
     query = Equipment.select()
 
     if room_id is not None:
