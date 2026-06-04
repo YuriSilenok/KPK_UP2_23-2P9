@@ -191,6 +191,7 @@ def get_notifications(profile_id: int):
     return [
         NotificationResponse(
             id=n.id,
+            profile=n.profile_id,
             parameter=n.parameter,
             value=n.value
         )
