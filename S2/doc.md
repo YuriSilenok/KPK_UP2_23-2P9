@@ -48,14 +48,14 @@
 
 #### Получить информацию о профиле по ID.
 Информация возвращаемая пользователю в случае удачного поиска профиля по ID:
-| Параметр | Тип |
-|---|---|
-| id | Целое число |
-| full_name | Строка |
-| telephone | Строка |
-| email | Строка |
-| path_to_photo | Строка |
-| is_active | boolean |
+| Параметр | Пояснение | Тип |
+|---|---|---|
+| id | Идентификатор | Целое число |
+| full_name | ФИО | Строка |
+| telephone | Телефон | Строка |
+| email | Электронная почта | Строка |
+| path_to_photo | Путь к фотографии | Строка |
+| is_active | Активность профиля | boolean |
 
 #### Получить список профилей по параметрам.
 Параметры запроса:
@@ -94,4 +94,22 @@
 Настройки уведомлений по ID определяют измененные (отличающиеся от исходных) параметры и их значения персонализации (состояний) уведомлений для каждого конкретного пользователя.
 
 #### ER-диаграмма
-![ER-диаграмма](erd.png)
+```mermaid
+erDiagram
+    PROFILE {
+        int id PK
+        string full_name
+        string telephone
+        string email
+        string path_to_photo
+        boolean is_active
+    }
+    NOTIFICATIONSETTINGS {
+        int id PK
+        int profile_id FK
+        string parameter
+        string value
+    }
+
+    PROFILE ||--o{ NOTIFICATIONSETTINGS : "id → profile_id"
+```
