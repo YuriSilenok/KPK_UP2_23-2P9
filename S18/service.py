@@ -88,6 +88,11 @@ def bind_equipment_to_room(data: EquipmentBindRoom):
         "is_active": true
     }
     """
+    if data.room_id <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="room_id должен быть положительным числом")
+    
     try:
         equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active)
 
@@ -249,6 +254,11 @@ def list_equipment(
     ]
     """
     query = Equipment.select()
+
+    if room_id <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="room_id должен быть положительным числом")
 
     if room_id is not None:
         subquery = RoomEquipment.select(RoomEquipment.equipment).where(
