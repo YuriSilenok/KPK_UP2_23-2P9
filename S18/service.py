@@ -73,46 +73,22 @@ def create_equipment(data: EquipmentCreate):
 
 @app.patch("/equipment/bind", response_model=RoomEquipmentResponse)
 def bind_equipment_to_room(data: EquipmentBindRoom):
-    """
-    Назначение: Привязывает оборудование к комнате (создает или обновляет связь).
-
-    HTTP-метод: PATCH
-    Параметры запроса:
-        - body: EquipmentBindRoom (JSON-объект с id оборудования и room_id комнаты)
-
-    Пример ответа:
-    {
-        "id": 5,
-        "name": "Проектор",
-        "room_id": 101,
-        "is_active": true
-    }
-    """
     if data.room_id <= 0:
         raise HTTPException(
             status_code=400,
             detail="room_id должен быть положительным числом")
-    
+
     try:
-        equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active)
+        equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active == True)
 
     except Equipment.DoesNotExist as e:
         raise HTTPException(
             status_code=404,
             detail=f"Оборудование с id={data.id} не найдено") from e
 
-    existing = RoomEquipment.select().where(
-        RoomEquipment.equipment == data.id,
-        RoomEquipment.is_active).first()
-
-    if existing:
-        existing.room_id = data.room_id
-        existing.save()
-        return RoomEquipmentResponse(
-            id=existing.id,
-            name=equipment.name,
-            room_id=existing.room_id,
-            is_active=existing.is_active)
+    RoomEquipment.update(is_active=False).where(
+        RoomEquipment.equipment == equipment.id,
+        RoomEquipment.is_active).execute()
 
     room_equipment = RoomEquipment.create(
         room_id=data.room_id,
@@ -120,7 +96,7 @@ def bind_equipment_to_room(data: EquipmentBindRoom):
         is_active=True)
 
     return RoomEquipmentResponse(
-        id=room_equipment.id,
+        id=equipment.id,
         name=equipment.name,
         room_id=room_equipment.room_id,
         is_active=room_equipment.is_active)
