@@ -1,22 +1,20 @@
-from peewee import *
+from peewee import Model, SqliteDatabase, AutoField, BooleanField, CharField, IntegerField, ForeignKeyField, DateTimeField, Check
 from datetime import datetime
 
-db = SQLiteDatabase('employee_service.db')
+db = SqliteDatabase('employee_service.db')
 
 class Table(Model):
     id = AutoField()
-    is_deleted = BooleanField(default=False)
+    is_active = BooleanField(default=True)
 
 
     def mark_as_delete(self):
-        self.is_deleted = True
+        self.is_active = False
 
 
     class Meta:
         database = db
 
-
-class Employee(Table): ...
 
 class JobPosition(Table):
     name = CharField(max_length=255, null=False, unique=True)
@@ -24,13 +22,12 @@ class JobPosition(Table):
     is_part_time = BooleanField(null=False, default=False)
 
 
-class EmployeePosition(Table):
-    employee_id = ForeignKeyField(Employee)
-    position_id = ForeignKeyField(JobPosition)
-
+class EmployeeJobPosition(Table):
+    employee_id = IntegerField(null=False)
+    job_position_id = ForeignKeyField(JobPosition, on_delete="cascade")
 
 class Vacation(Table):
-    employee_id = ForeignKeyField(Employee)
+    employee_id = IntegerField(null=False)
     start_time = DateTimeField(null=False)
     end_time = DateTimeField(null=False)
     
@@ -39,7 +36,7 @@ class Vacation(Table):
 
 
 class SickLeave(Table):
-    employee_id = ForeignKeyField(Employee)
+    employee_id = IntegerField(null=False)
     start_time = DateTimeField(null=False)
     end_time = DateTimeField(null=False)
     
@@ -49,7 +46,7 @@ class SickLeave(Table):
 
 
 def seed():
-    db.create_tables([Employee, JobPosition, SickLeave, Vacation, EmployeePosition])
+    db.create_tables([JobPosition, SickLeave, Vacation, EmployeeJobPosition])
 
 
 if __name__ == "__main__":
