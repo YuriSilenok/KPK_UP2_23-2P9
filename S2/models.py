@@ -18,7 +18,7 @@ class Profile(BaseModel):
 
 class NotificationSettings(BaseModel):
     id = PrimaryKeyField()
-    profile_id = ForeignKeyField(Profile, backref='notification_settings', on_delete=CASCADE)
+    profile_id = ForeignKeyField(Profile, backref='notification_settings')
     parameter = CharField()
     value = CharField()
 
