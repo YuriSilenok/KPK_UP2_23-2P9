@@ -64,10 +64,20 @@ class NotificationResponse(BaseModel):
     value: str
 
 # ============================ Вспомогательные функции ============================
-def format_telephone(telephone: str) -> str:
-    # Можно дополнительно реализовать форматирование телефонного номера
-    return telephone
+def preprocess_phone_number(phone: str) -> str:
+    digits = ''.join(filter(str.isdigit, phone))
+    digits = digits[-10:]
+    return digits
 
+def format_phone_for_display(digits: str) -> str:
+    if len(digits) != 10:
+        return digits
+    area_code = digits[:3]
+    first_part = digits[3:6]
+    second_part = digits[6:8]
+    third_part = digits[8:10]
+    return f"+7({area_code}){first_part}-{second_part}-{third_part}"
+   
 def get_profile_or_404(profile_id: int) -> Profile:
     try:
         profile = Profile.get_by_id(profile_id)
@@ -82,11 +92,11 @@ def get_profile_or_404(profile_id: int) -> Profile:
 # ---------------- Создание профиля
 @app.post("/profiles/", response_model=ProfileResponse)
 def create_profile(data: ProfileCreate):
-    # Проверка на уникальность email или телефон (если нужно)
+    # Проверка на уникальность email или телефон
     # Создаем профиль
     profile = Profile.create(
         full_name=data.full_name,
-        telephone=format_telephone(data.telephone),
+        telephone=preprocess_phone_number(format_telephone(data.telephone)),
         email=data.email,
         path_to_photo=data.path_to_photo,
         is_active=True
@@ -107,7 +117,7 @@ def get_profile(profile_id: int):
     return ProfileResponse(
         id=profile.id,
         full_name=profile.full_name,
-        telephone=profile.telephone,
+        telephone=format_phone_for_display(profile.telephone),
         email=profile.email,
         path_to_photo=profile.path_to_photo,
         is_active=profile.is_active
@@ -121,7 +131,7 @@ def update_profile(profile_id: int, data: ProfileUpdate):
     if data.full_name is not None:
         profile.full_name = data.full_name
     if data.telephone is not None:
-        profile.telephone = format_telephone(data.telephone)
+        profile.telephone = preprocess_phone_number(format_telephone(data.telephone))
     if data.email is not None:
         profile.email = data.email
     if data.path_to_photo is not None:
@@ -134,7 +144,7 @@ def update_profile(profile_id: int, data: ProfileUpdate):
     return ProfileResponse(
         id=profile.id,
         full_name=profile.full_name,
-        telephone=profile.telephone,
+        telephone=format_phone_for_display(profile.telephone),
         email=profile.email,
         path_to_photo=profile.path_to_photo,
         is_active=profile.is_active
@@ -161,7 +171,7 @@ def list_profiles(
     if full_name:
         query = query.where(Profile.full_name.contains(full_name))
     if telephone:
-        query = query.where(Profile.telephone.contains(telephone))
+        query = query.where(preprocess_phone_number(Profile.telephone.contains(telephone)))
     if email:
         query = query.where(Profile.email.contains(email))
     if is_active is not None:
@@ -172,7 +182,7 @@ def list_profiles(
         ProfileResponse(
             id=p.id,
             full_name=p.full_name,
-            telephone=p.telephone,
+            telephone=format_phone_for_display(p.telephone),
             email=p.email,
             path_to_photo=p.path_to_photo,
             is_active=p.is_active
