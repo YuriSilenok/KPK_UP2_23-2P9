@@ -9,7 +9,7 @@ class BaseModel(Model):
 
 class Profile(BaseModel):
     full_name = CharField()
-    telephone = CharField(max_length=10, unique=True)
+    telephone = CharField(min_length=10, max_length=10, unique=True)
     email = CharField(max_length=254, unique=True)
     path_to_photo = CharField()
     is_active = BooleanField(default=True)
@@ -19,5 +19,8 @@ class NotificationSettings(BaseModel):
     parameter = CharField()
     value = CharField()
 
-if __name__ == '__main__':
+def init_db():
     db.create_tables([Profile, NotificationSettings])
+
+if __name__ == '__main__':
+    init_db()
