@@ -30,15 +30,7 @@ API включает следующие эндпоинты:
    - Вход: фильтры через query параметры
    - Выход: список профилей
 
-6. Создание настройки уведомлений (POST /profiles/{profile_id}/notifications/)
-   - Вход: JSON parameter, value
-   - Выход: созданная настройка
-
-7. Обновление настройки уведомлений (PUT /profiles/{profile_id}/notifications/)
-   - Вход: JSON parameter, value
-   - Выход: обновленная настройка
-
-8. Получение всех настроек уведомлений профиля (GET /profiles/{profile_id}/notifications/)
+6. Получение всех настроек уведомлений профиля (GET /profiles/{profile_id}/notifications/)
    - Вход: профиль ID
    - Выход: список настроек
 """
@@ -64,14 +56,6 @@ class ProfileUpdate(BaseModel):
     email: Optional[EmailStr]
     path_to_photo: Optional[str] = Field(None, min_length=1, max_length=255)
     is_active: Optional[bool]
-
-class NotificationCreate(BaseModel):
-    parameter: str = Field(..., description="имя параметра")
-    value: str = Field(..., description="значение параметра")
-
-class NotificationUpdate(BaseModel):
-    parameter: str
-    value: str
 
 class NotificationResponse(BaseModel):
     id: int
@@ -196,47 +180,6 @@ def list_profiles(
         for p in profiles
     ]
 
-# ---------------- Создание настройки уведомлений
-@app.post("/profiles/{profile_id}/notifications/", response_model=NotificationResponse)
-def create_notification(profile_id: int, data: NotificationCreate):
-    profile = get_profile_or_404(profile_id)
-    # проверка уникальности параметра у данного профиля
-    existing = NotificationSettings.select().where(
-        (NotificationSettings.profile == profile) &
-        (NotificationSettings.parameter == data.parameter)
-    ).first()
-    if existing:
-        raise HTTPException(status_code=409, detail="Параметр уже существует")
-    notification = NotificationSettings.create(
-        profile=profile,
-        parameter=data.parameter,
-        value=data.value
-    )
-    return NotificationResponse(
-        id=notification.id,
-        profile=profile.id,
-        parameter=notification.parameter,
-        value=notification.value
-    )
-
-# ---------------- Обновление настройки уведомлений
-@app.put("/profiles/{profile_id}/notifications/", response_model=NotificationResponse)
-def update_notification(profile_id: int, data: NotificationUpdate):
-    profile = get_profile_or_404(profile_id)
-    notification = NotificationSettings.select().where(
-        (NotificationSettings.profile == profile) &
-        (NotificationSettings.parameter == data.parameter)
-    ).first()
-    if not notification:
-        raise HTTPException(status_code=404, detail="Настройка не найдена")
-    notification.value = data.value
-    notification.save()
-    return NotificationResponse(
-        id=notification.id,
-        profile=profile.id,
-        parameter=notification.parameter,
-        value=notification.value
-    )
 
 # ---------------- Получить все настройки уведомлений профиля
 @app.get("/profiles/{profile_id}/notifications/", response_model=List[NotificationResponse])
