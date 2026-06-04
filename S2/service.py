@@ -140,9 +140,10 @@ def update_profile(profile_id: int, data: ProfileUpdate):
     if data.path_to_photo is not None:
         profile.path_to_photo = data.path_to_photo
     # Проверка уникальности email или телефона
-    existing_profile = Profile.select().where(profile.email) | (profile.telephone).first()
-    if existing_profile:
-        raise ValueError("Профиль с таким email или телефоном уже существует.")
+   if data.telephone is not None or data.email is not None:
+       existing_profile = Profile.select().where(profile.email) | (profile.telephone).first()
+       if existing_profile:
+           raise ValueError("Профиль с таким email или телефоном уже существует.")
     profile.save()
 
     return ProfileResponse(
@@ -167,7 +168,7 @@ def delete_profile(profile_id: int):
 @app.get("/profiles/", response_model=List[ProfileResponse])
 def list_profiles(
     full_name: Optional[str] = Query(None),
-    is_active: Optional[bool] = Query(True)
+    is_active: Optional[bool] = Query(None)
 ):
     query = Profile.select()
     if full_name:
