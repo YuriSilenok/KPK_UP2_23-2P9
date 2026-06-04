@@ -30,6 +30,8 @@
 
 Оборудование добавляется в кабинет.
 
+Активная связь между кабинетом и оборудованием должна быть только одна.
+
 В случае удачного изменения списка оборудования возвращается:
 | Параметр | Тип |
 |---|---|
@@ -96,8 +98,8 @@ erDiagram
 
     RoomEquipment {
         int id PK
-        int room_id
-        int equipment_id FK
+        int room_id FK
+        int equipment FK
         boolean is_active
     }
 
