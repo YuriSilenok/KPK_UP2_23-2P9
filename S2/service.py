@@ -37,10 +37,10 @@ API включает следующие эндпоинты:
 
 # ============================ Pydantic схемы ============================
 class ProfileCreate(BaseModel):
-    full_name: str = Field(...)
+    full_name: str = Field(..., max_length=255)
     telephone: str = Field(..., min_length=10, max_length=10)
     email: EmailStr
-    path_to_photo: str = Field(...)
+    path_to_photo: str = Field(..., max_length=255)
 
 class ProfileResponse(BaseModel):
     id: int
@@ -51,10 +51,10 @@ class ProfileResponse(BaseModel):
     is_active: bool
 
 class ProfileUpdate(BaseModel):
-    full_name: Optional[str] = Field(None)
+    full_name: Optional[str] = Field(None, max_length=255)
     telephone: Optional[str] = Field(None, min_length=10, max_length=10)
     email: Optional[EmailStr]
-    path_to_photo: Optional[str] = Field(None)
+    path_to_photo: Optional[str] = Field(None, max_length=255)
 
 class NotificationResponse(BaseModel):
     id: int
