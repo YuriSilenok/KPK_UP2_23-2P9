@@ -24,7 +24,7 @@ class JobPosition(Table):
 
 class EmployeeJobPosition(Table):
     employee_id = IntegerField(null=False)
-    job_position_id = ForeignKeyField(JobPosition, on_delete="cascade")
+    job_position_id = ForeignKeyField(JobPosition)
 
 class Vacation(Table):
     employee_id = IntegerField(null=False)
@@ -45,9 +45,9 @@ class SickLeave(Table):
 
 
 
-def seed():
+def init_db():
     db.create_tables([JobPosition, SickLeave, Vacation, EmployeeJobPosition])
 
 
 if __name__ == "__main__":
-    seed()
+    init_db()
