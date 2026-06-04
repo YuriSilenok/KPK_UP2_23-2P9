@@ -234,6 +234,11 @@ def list_equipment(
     query = Equipment.select()
 
     if room_id is not None:
+        if room_id <= 0:
+            raise HTTPException(
+                status_code=400,
+                detail="room_id должен быть положительным числом")
+
         subquery = RoomEquipment.select(RoomEquipment.equipment).where(
             RoomEquipment.room_id == room_id,
             RoomEquipment.is_active)
