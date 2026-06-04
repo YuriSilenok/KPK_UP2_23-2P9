@@ -86,4 +86,27 @@
 
 В таблице Equipment хранится само оборудование и его статус.
 
-![ER-диаграмма](erd.png)
+```mermaid
+erDiagram
+    Equipment {
+        int id PK
+        varchar name
+        boolean is_active
+    }
+
+    RoomEquipment {
+        int id PK
+        int room_id
+        int equipment_id FK
+        boolean is_active
+    }
+
+    RoomEquipment }o--|| Equipment : "equipment_id -> id"
+```
+
+#### Список реляционных связей
+
+Связывание таблиц осуществляется через внешний ключ:
+* Поле `equipment_id` из таблицы **RoomEquipment** ссылается на первичное ключевое поле `id` в таблице **Equipment**.
+* Тип связи: **Многие к одному**. Одна единица оборудования из справочника `Equipment` может иметь множество записей в таблице связей `RoomEquipment`, но активной должна быть только одна связь.
+* Связи с таблицей кабинетов отсутствуют, так как сущность кабинетов находится во другом сервисе.
