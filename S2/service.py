@@ -167,8 +167,6 @@ def delete_profile(profile_id: int):
 @app.get("/profiles/", response_model=List[ProfileResponse])
 def list_profiles(
     full_name: Optional[str] = Query(None),
-    telephone: Optional[str] = Query(None),
-    email: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(True)
 ):
     query = Profile.select()
