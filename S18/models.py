@@ -24,5 +24,9 @@ class RoomEquipment(BaseModel):
     is_active = BooleanField(default=True)
 
 
-if __name__ == "__main__":
+def init_db():
     db.create_tables([Equipment, RoomEquipment])
+
+
+if __name__ == "__main__":
+    init_db()
