@@ -167,11 +167,6 @@ def list_profiles(
     query = Profile.select()
     if full_name:
         query = query.where(Profile.full_name.contains(full_name))
-    if telephone:
-        query = query.where(Profile.telephone.contains(preprocess_phone_number(telephone)))
-    if email:
-        query = query.where(Profile.email.contains(email))
-    if is_active is not None:
         query = query.where(Profile.is_active == is_active)
 
     profiles = list(query)
