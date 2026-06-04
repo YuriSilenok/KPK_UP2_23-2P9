@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -146,8 +146,8 @@ def delete_equipment(equipment_id: int):
 
         return SuccessResponse(success=True)
 
-    except Equipment.DoesNotExist as e:
-        raise HTTPException(404, False) from e
+    except Equipment.DoesNotExist:
+        return SuccessResponse(success=False)
 
 
 @app.delete("/equipment/unbind/{equipment_id}", response_model=SuccessResponse)
@@ -174,8 +174,8 @@ def unbind_equipment_from_room(equipment_id: int):
 
         return SuccessResponse(success=True)
 
-    except RoomEquipment.DoesNotExist as e:
-        raise HTTPException(404, False) from e
+    except RoomEquipment.DoesNotExist:
+        return SuccessResponse(success=False)
 
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
