@@ -11,7 +11,7 @@ class Profile(BaseModel):
     id = PrimaryKeyField()
     full_name = CharField(max_length=255)
     telephone = CharField(min_length=10, max_length=10, unique=True)
-    email = CharField(max_length=254, unique=True)
+    email = CharField(max_length=255, unique=True)
     path_to_photo = CharField(max_length=255)
     is_active = BooleanField(default=True)
 
