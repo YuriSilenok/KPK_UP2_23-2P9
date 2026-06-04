@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-from models import Equipment, RoomEquipment
+from models import Equipment, RoomEquipment, db
 
 
 app = FastAPI()
@@ -76,24 +76,26 @@ def bind_equipment_to_room(data: EquipmentBindRoom):
     if data.room_id <= 0:
         raise HTTPException(
             status_code=400,
-            detail="room_id должен быть положительным числом")
+            detail="room_id должен быть положительным числом"
+        )
 
     try:
-        equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active == True)
-
+        equipment = Equipment.get(Equipment.id == data.id, Equipment.is_active)
     except Equipment.DoesNotExist as e:
         raise HTTPException(
             status_code=404,
-            detail=f"Оборудование с id={data.id} не найдено") from e
+            detail=f"Оборудование с id={data.id} не найдено"
+        ) from e
 
-    RoomEquipment.update(is_active=False).where(
-        RoomEquipment.equipment == equipment.id,
-        RoomEquipment.is_active).execute()
+    with db.atomic():
+        RoomEquipment.update(is_active=False).where(
+            RoomEquipment.equipment == equipment.id,
+            RoomEquipment.is_active).execute()
 
-    room_equipment = RoomEquipment.create(
-        room_id=data.room_id,
-        equipment=equipment,
-        is_active=True)
+        room_equipment = RoomEquipment.create(
+            room_id=data.room_id,
+            equipment=equipment,
+            is_active=True)
 
     return RoomEquipmentResponse(
         id=equipment.id,
@@ -127,8 +129,8 @@ def delete_equipment(equipment_id: int):
 
         return SuccessResponse(success=True)
 
-    except Equipment.DoesNotExist:
-        return SuccessResponse(success=False)
+    except Equipment.DoesNotExist as e:
+        raise HTTPException(404, False) from e
 
 
 @app.delete("/equipment/unbind/{equipment_id}", response_model=SuccessResponse)
@@ -155,8 +157,8 @@ def unbind_equipment_from_room(equipment_id: int):
 
         return SuccessResponse(success=True)
 
-    except RoomEquipment.DoesNotExist:
-        return SuccessResponse(success=False)
+    except RoomEquipment.DoesNotExist as e:
+        raise HTTPException(404, False) from e
 
 
 @app.get("/equipment/room/{room_id}", response_model=List[EquipmentListResponse])
@@ -230,11 +232,6 @@ def list_equipment(
     ]
     """
     query = Equipment.select()
-
-    if room_id <= 0:
-        raise HTTPException(
-            status_code=400,
-            detail="room_id должен быть положительным числом")
 
     if room_id is not None:
         subquery = RoomEquipment.select(RoomEquipment.equipment).where(
