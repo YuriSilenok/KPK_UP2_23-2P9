@@ -38,7 +38,7 @@ API включает следующие эндпоинты:
 # ============================ Pydantic схемы ============================
 class ProfileCreate(BaseModel):
     full_name: str = Field(..., min_length=1, max_length=200)
-    telephone: str = Field(..., min_length=5, max_length=20)
+    telephone: str = Field(..., min_length=10, max_length=10)
     email: EmailStr
     path_to_photo: str = Field(..., min_length=1, max_length=255)
 
@@ -55,7 +55,6 @@ class ProfileUpdate(BaseModel):
     telephone: Optional[str] = Field(None, min_length=5, max_length=20)
     email: Optional[EmailStr]
     path_to_photo: Optional[str] = Field(None, min_length=1, max_length=255)
-    is_active: Optional[bool]
 
 class NotificationResponse(BaseModel):
     id: int
@@ -96,7 +95,7 @@ def create_profile(data: ProfileCreate):
     # Создаем профиль
     profile = Profile.create(
         full_name=data.full_name,
-        telephone=preprocess_phone_number(format_telephone(data.telephone)),
+        telephone=preprocess_phone_number(data.telephone),
         email=data.email,
         path_to_photo=data.path_to_photo,
         is_active=True
@@ -131,7 +130,7 @@ def update_profile(profile_id: int, data: ProfileUpdate):
     if data.full_name is not None:
         profile.full_name = data.full_name
     if data.telephone is not None:
-        profile.telephone = preprocess_phone_number(format_telephone(data.telephone))
+        profile.telephone = preprocess_phone_number(data.telephone)
     if data.email is not None:
         profile.email = data.email
     if data.path_to_photo is not None:
@@ -163,7 +162,7 @@ def delete_profile(profile_id: int):
 @app.get("/profiles/", response_model=List[ProfileResponse])
 def list_profiles(
     full_name: Optional[str] = Query(None),
-    telephone: Optional[str] = Query(None),
+    telephone: Optional[str] = preprocess_phone_number(Query(None)),
     email: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(True)
 ):
@@ -171,7 +170,7 @@ def list_profiles(
     if full_name:
         query = query.where(Profile.full_name.contains(full_name))
     if telephone:
-        query = query.where(preprocess_phone_number(Profile.telephone.contains(telephone)))
+        query = query.where(Profile.telephone.contains(telephone))
     if email:
         query = query.where(Profile.email.contains(email))
     if is_active is not None:
